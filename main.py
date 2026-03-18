@@ -10,7 +10,8 @@ from scipy import signal
 dropdown_options = ['ECG', 'Temperature', 'Respiration', 'IMU/Motion']
 
 class GUI:
-    def __init__(self):
+    def __init__(self, root):
+        self.root = root
         self.window = tk.Tk()
         self.window.title("SYSC 2010 Final Project")
         self.window.geometry("520x380")
@@ -26,6 +27,37 @@ class GUI:
         tk.Label(self.window, text="Y-axis Column Name", font=('Arial', 11)).pack()
         self.entry_y = tk.Entry(self.window, width=40, font=('Arial', 11))
         self.entry_y.pack(pady=4)
+        
+        self.selected_type = tk.StringVar()
+
+        # 2. Define your list of data types
+        data_options = ["ECG", "Temperature", "Respiration", "Motion"]
+
+        # 3. Create the Dropdown (Combobox)
+        tk.Label(root, text="Select Data Module:").pack(pady=(10, 0))
+        
+        self.dropdown = ttk.Combobox(root, textvariable=self.selected_type, values=data_options,state="readonly")
+        self.dropdown.pack(pady=5)
+        
+        # Set a default value so it isn't empty at the start
+        self.dropdown.current(0) 
+
+        # Button to trigger processing
+        self.btn_run = tk.Button(root, text="Process Data", command=self.handle_selection)
+        self.btn_run.pack(pady=20)
+
+    def handle_selection(self):
+        # 4. "Save" or Retrieve the value
+        # .get() pulls the current string from the StringVar
+        choice = self.selected_type.get()
+        
+        print(f"User selected: {choice}")
+        
+        # Now you can use logic to call different filters
+        if choice == "ECG":
+            print("Applying ECG Bandpass...")
+        elif choice == "Motion":
+            print("Applying Motion Median Filter...")
 
         tk.Button(self.window, text="Enter", font=('Arial', 11),command=self.load_and_plot,width=15).pack()
 
@@ -36,6 +68,8 @@ def load_and_plot(self):
         filename = self.entry_file.get().strip()
         x = self.entry_x.get().strip()
         y = self.entry_y.get().strip()
+        
+        current_type = self.selected_type.get()
 
         try:
             df = pd.read_csv(filename)
@@ -56,13 +90,18 @@ def load_and_plot(self):
             print("Error", str(e))
             
         #ECG Signal:
-        ecg_bandpass_filter(250, signal_data)
+        ecg_bandpass_filter(500, signal_data)
         
         #Temperature:
-        temp_lowpass_filter(signal_data)
+        temp_lowpass_filter(0.1, signal_data)
         
         #Respiration
-        resp_bandpass_filter(signal_data)
+        resp_bandpass_filter(25, signal_data)
+        
+        #Motion
+        motion_comp_filter(100, signal_data)
+        
+#Applying the different filters for each type of signal
             
 def temp_lowpass_filter(data, cutoff, fs, order=5):
     nyquist = 0.5 * fs
@@ -97,7 +136,21 @@ def resp_bandpass_filter(fs, signal_data, t) :
     plt.ylabel("Amplitude")
     plt.plot(t, bp_filtered_resp, color='purple')
     plt.show()
+    
+def motion_comp_filter(fs, signal_data) :
+    median_filtered = signal.medfilt(signal_data, kernel_size=5)
+    
+    cutoff = 5.0 
+    nyquist = 0.5 * fs
+    normal_cutoff = cutoff / nyquist
+    
+    b, a = signal.butter(4, normal_cutoff, btype='low', analog=False)
+    final_smoothed = signal.filtfilt(b, a, median_filtered)
+    
+    return final_smoothed
 
+
+#FFT of the signals
 def get_fft(data, fs):
     fft_vals = np.abs(np.fft.rfft(data))
     freqs = np.fft.rfftfreq(len(data), 1/fs)
