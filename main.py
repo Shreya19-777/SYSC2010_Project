@@ -43,12 +43,12 @@ class GUI:
         tk.Button(self.window, text="Load & Filter", font=('Arial', 11),command=self.handle_selection,width=15).pack()
         self.window.mainloop()
     
-    #Getting the data type
     def handle_selection (self) :
+        #Saving the user inputted data type
         choice = self.selected_type.get()
         print(f"User chose {choice}")
 
-        #Data used to plot unfiltered
+        #Data used to plot unfiltered data
         filename = self.entry_file.get().strip()
         x = self.entry_x.get().strip()
         y = self.entry_y.get().strip()
@@ -69,9 +69,14 @@ class GUI:
             plt.tight_layout()
             plt.show()    
             
-            #Applying correct filter for the given data type
-            apply_filter(choice, signal_data, time)     
+            #Calling function for displaying the key features of the unfiltered data
+            features = key_features(signal_data)
+            print(features)
             
+            #Applying correct filter for the given data type
+            apply_filter(choice, signal_data, time) 
+                
+        #Error message for incorrect inputted values from user
         except Exception as e:
             print("Error", str(e))
         
@@ -93,6 +98,7 @@ def apply_filter(choice, signal_data, t) :
     elif choice == "Respiration" :
         print("Applying Respiration Filter")
         resp_bandpass_filter(25, signal_data, t)
+    #No choice
     else :
         print("ERROR, no choice")
         
@@ -156,7 +162,8 @@ def get_fft(data, fs):
     freqs = np.fft.rfftfreq(len(data), 1/fs)
     return freqs, fft_vals
 
-def extract_features(signal_data):
+#The key features from the unfiltered data
+def key_features(signal_data):
     features = {
         "mean": np.mean(signal_data),
         "rms": np.sqrt(np.mean(signal_data**2)),
