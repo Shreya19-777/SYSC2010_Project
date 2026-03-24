@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from scipy.signal import butter, filtfilt, firwin
 
+
 def handle_missing_data(signal):
 
     s = pd.Series(signal, dtype=float)  #convert to series for easier handling of missing data
@@ -38,7 +39,7 @@ def fft_IMU(signal):
 def filter_IMU(signal, method='iir', cutoff=5, fs=None, order=5):
     
     if fs is None:
-        fs = len(signal) / total_time_in_seconds.  # rough estimate: assume 1 second of data
+        fs = len(signal) / total_time_in_seconds  # rough estimate: assume 1 second of data
 
     signal        = np.array(signal, dtype=float)
     nyq           = 0.5 * fs
