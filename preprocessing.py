@@ -17,12 +17,11 @@ def preprocess (filename, choice, x, y) :
         plt.figure(figsize=(20,15))
         plt.plot(df[x], df[y], color='pink')
         plt.title(f"Unfiltered plot of {choice} : {y} vs {x}")
-        plt.xlabel(x, fontsize=16)
-        plt.ylabel(y, fontsize=16)
+        plt.xlabel(x)
+        plt.ylabel(y)
         plt.tight_layout()
         plt.grid(True)
         plt.show()
-
         #------------------------------------PREPROCESSING--------------------------------
         signal_data = handle_missing_data(signal_data)
         signal_data = remove_drift(signal_data)
@@ -35,11 +34,13 @@ def preprocess (filename, choice, x, y) :
         fs = (1/sampling_period)
  
         #Applying correct filter for the given data type
-        filter_functions.apply_filter(choice, signal_data, time, fs, signal_data)
+        extract = filter_functions.apply_filter(choice, signal_data, time, fs, signal_data)
                 
     #Error message for incorrect inputted values from user
     except Exception as e:
         print("Error", str(e))
+        
+    return extract
             
 def handle_missing_data(signal):
 

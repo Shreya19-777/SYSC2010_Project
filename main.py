@@ -58,12 +58,6 @@ class GUI(ctk.CTk):
         self.stats_title = ctk.CTkLabel(self.stats_frame, text="Key Features", font=ctk.CTkFont(weight="bold"))
         self.stats_title.pack(pady=5)
         
-        # Changed name to self.stat_labels to match your handle_selection logic
-        self.stat_labels = {} 
-        for stat in ["mean", "rms", "peak_to_peak", "std_dev"]:
-            label = ctk.CTkLabel(self.stats_frame, text=f"{stat.replace('_', ' ').title()}: -")
-            label.pack()
-            self.stat_labels[stat] = label
     
     #BROWSING FOR CSV FILE
     def browse_file(self):
@@ -82,21 +76,11 @@ class GUI(ctk.CTk):
         x = self.entry_x.get().strip()
         y = self.entry_y.get().strip()
         
-        preprocessing.preprocess(filename, choice, x, y)
+        extracts = preprocessing.preprocess(filename, choice, x, y)
+        print(extracts)
         
-        '''
-        stats = {
-                    "mean": np.mean(signal_data),
-                    "rms": np.sqrt(np.mean(signal_data**2)),
-                    "peak_to_peak": np.ptp(signal_data),
-                    "std_dev": np.std(signal_data)
-                }
-        
-        
-            #Looping through elements and displaying the resulting value to 4 decimal places
-            for key,value in stats.items() :
-                self.stat_labels[key].configure(text=f"{key.replace('_', ' ').title()}: {value:.4f}")
-            '''
+        for key,value in extracts.items() :
+            self.stat_labels[key].configure(text=f"{key.title()}: {value:.4f}")
         
 #**************************************CHOOSING CORRECT FILTER FOR SPECIFIED DATA TYPE****************************************
 

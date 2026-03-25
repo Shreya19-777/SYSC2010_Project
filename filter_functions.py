@@ -1,34 +1,37 @@
-import fft
-import numpy as np 
-import pandas as pd 
+import fft_plot
 import matplotlib.pyplot as plt
 from scipy import signal
-from scipy.signal import find_peaks
+
+import extracts
 
 def apply_filter(choice, signal_data, t, fs, unfiltered) :
     #ECG Signal:
     if choice == "ECG":
         print("Applying ECG Bandpass Filter")
-        ecg_filter(fs, signal_data, t, unfiltered) 
+        extract = ecg_filter(fs, signal_data, t, unfiltered) 
+        return extract
     #Temperature:
     elif choice == "Temperature" :
         print("Applying Temperature Filter")
-        filtered_temp = temp_lowpass_filter(signal_data, fs, 5, unfiltered, t)
+        extract = temp_lowpass_filter(signal_data, fs, 5, unfiltered, t)
+        return extract
     #Motion
     elif choice == "Motion":
         print("Applying Motion Median Filter")
-        imu_lowpass_filter(signal_data, fs, 4, unfiltered, t)
+        extract = imu_lowpass_filter(signal_data, fs, 4, unfiltered, t)
+        return extract
 
     #Respiration
     elif choice == "Respiration" :
         print("Applying Respiration Filter")
-        respiration_lowpass_filter(signal_data, fs, 4, unfiltered, t)
+        extract = respiration_lowpass_filter(signal_data, fs, 4, unfiltered, t)
+        return extract
            
 #Applying the different filters for each type of signal
 def ecg_filter(fs, signal_data, t, unfiltered) :
     
     #Using FIR to lose less data about the QRS complex in ECG signal
-    #Low and highcut
+    '''
     minimum = 0.5
     high = 40
     numtaps = 101
@@ -41,7 +44,21 @@ def ecg_filter(fs, signal_data, t, unfiltered) :
     plt.xlabel("Time (s)")
     plt.ylabel("Amplitude")
     plt.plot(t, filtered_ecg, color='purple')
+    plt.show()
+    '''
+    
+    minimum = 0.5
+    high = 40
+
+    sos = signal.butter(10, [minimum, high], btype='band', fs=fs, output='sos')
+    bp_filtered_ecg = signal.sosfiltfilt(sos, signal_data)
+
+    plt.figure()
+    plt.title("Band Pass Filtered Signal")
+    plt.xlabel("Time (s)")
+    plt.ylabel("Amplitude")
     plt.tight_layout()
+    plt.plot(t, bp_filtered_ecg, color='purple')
     plt.show()
     
     #Comparison between filtered and unfiltered
@@ -51,12 +68,15 @@ def ecg_filter(fs, signal_data, t, unfiltered) :
     plt.ylabel("Amplitude")
     plt.tight_layout()
     plt.plot(t, unfiltered, color='pink')
-    plt.plot(t, filtered_ecg, color='purple')
+    plt.plot(t, bp_filtered_ecg, color='purple')
     plt.show()
     
-    fft.plot_fft("ECG", filtered_ecg, 1/fs, unfiltered)
+    extract = extracts.extract_ecg_features(bp_filtered_ecg)
+    print(extract)
     
-    return filtered_ecg
+    fft_plot.plot_fft("ECG", bp_filtered_ecg, 1/fs, unfiltered)
+    
+    return extract
     
 #****************************************************Temperature**********************************************
 def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
@@ -64,7 +84,7 @@ def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
     cutoff = 0.9 * nyquist
     normal_cutoff = cutoff / nyquist
     b, a = signal.butter(order, normal_cutoff, btype='low', analog=False)
-    lp_filtered = signal.filtfilt(b, a, data)
+    lp_filtered = signal.filtfilt(b, a, signal_data)
 
     plt.figure(figsize=(12,8))
     plt.title("Filtered ECG Signal")
@@ -84,8 +104,11 @@ def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
     plt.plot(t, lp_filtered, color='blue')
     plt.show()
     
+    extract = extracts.extract_temp_features(lp_filtered)
+    
     fft.plot_fft("Temperature", lp_filtered, 1/fs, unfiltered)
-    return signal.filtfilt(b, a, data)
+    
+    return extract
 
 #****************************************************Resoiration**********************************************
 def respiration_lowpass_filter(signal_data, fs, order, unfiltered, t):
@@ -98,7 +121,7 @@ def respiration_lowpass_filter(signal_data, fs, order, unfiltered, t):
         
     normal_cutoff = cutoff / nyquist
     b, a = signal.butter(order, normal_cutoff, btype='low', analog=False)
-    lp_filtered = signal.filtfilt(b, a, data)
+    lp_filtered = signal.filtfilt(b, a, signal_data)
    
     plt.figure(figsize=(12,8))
     plt.title("Filtered Respiration Signal")
@@ -118,15 +141,16 @@ def respiration_lowpass_filter(signal_data, fs, order, unfiltered, t):
     plt.plot(t, lp_filtered, color='blue')
     plt.show()
     
-    fft.plot_fft("Respiration", lp_filtered, 1/fs, unfiltered)
-    return lp_filtered
+    fft_plot.plot_fft("Respiration", lp_filtered, 1/fs, unfiltered)
+    
+    extract = extracts.extract_respiration_features(lp_filtered)
+    
+    return extract
 
 #****************************************************IMU**********************************************
 def imu_lowpass_filter(signal_data, fs, order, unfiltered, t):
-    
    # Applies an IIR Low-Pass Filter to smooth motion data.
     #Keeps movement trends while removing high-frequency jitter.
-    
     nyquist = 0.5 * fs
     # Higher cutoff to capture rapid physical movements
     cutoff = 20.0 
@@ -136,7 +160,7 @@ def imu_lowpass_filter(signal_data, fs, order, unfiltered, t):
         
     normal_cutoff = cutoff / nyquist
     b, a = signal.butter(order, normal_cutoff, btype='low', analog=False)
-    lp_filtered = signal.filtfilt(b, a, data)
+    lp_filtered = signal.filtfilt(b, a, signal_data)
 
     plt.figure(figsize=(12,8))
     plt.title("Filtered IMU Signal")
@@ -156,44 +180,10 @@ def imu_lowpass_filter(signal_data, fs, order, unfiltered, t):
     plt.plot(t, lp_filtered, color='blue')
     plt.show()
     
-    fft.plot_fft("IMU", lp_filtered, 1/fs, unfiltered)
-    return lp_filtered
-
-
-#Feature extraction
-
-
-def extract_motion_features(lp_filtered):
-    features = {
-        "Mean": np.mean(lp_filtered),
-        "Std Dev": np.std(lp_filtered),
-        "RMS (Intensity)": np.sqrt(np.mean(lp_filtered**2)), 
-        "Peak Acceleration": np.max(np.abs(lp_filtered)),   
-        "Peak-to-Peak": np.ptp(lp_filtered)                 
-    }
-    return features
-
-def extract_respiration_features(lp_filtered_signal, fs):
-    # Required: mean, std, RMS, peak-to-peak
-    mean_val = np.mean(lp_filtered_signal)
-    std_val = np.std(lp_filtered_signal) 
-    rms_val = np.sqrt(np.mean(lp_filtered_signal**2)) 
-    ptp_range = np.ptp(lp_filtered_signal)
-
-    # --- Signal-Specific Feature: Breathing Rate ---
-    # Identify peaks in the filtered respiration signal 
-    # distance=fs*1.2 ensures peaks are at least 1.2s apart (prevents double counting)
-    peaks, _ = find_peaks(lp_filtered_signal, distance=fs*1.2)
+    fft_plot.plot_fft("IMU", lp_filtered, 1/fs, unfiltered)
     
-    # Calculate Breaths Per Minute (BPM)
-    num_breaths = len(peaks)
-    duration_min = (len(lp_filtered_signal) / fs) / 60
-    bpm = num_breaths / duration_min if duration_min > 0 else 0
-
-    return {
-        "Mean": round(mean_val, 3),
-        "Std Dev": round(std_val, 3),
-        "RMS": round(rms_val, 3),
-        "Range": round(ptp_range, 3),
-        "Breathing Rate (BPM)": round(bpm, 1)
-    }
+    extract = extracts.extract_motion_features(lp_filtered)
+    
+    return extract
+    
+    
