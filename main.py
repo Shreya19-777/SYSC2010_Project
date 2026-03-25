@@ -1,8 +1,4 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
 import customtkinter as ctk
-from scipy import signal
 from tkinter import filedialog
 
 #Importing files
@@ -16,7 +12,7 @@ class GUI(ctk.CTk):
         super().__init__()
 
         self.title("SYSC 2010 Final Project")
-        self.geometry("800x550")
+        self.geometry("900x800")
         
         #Getting CSV file name
         self.label_title = ctk.CTkLabel(self, text="CSV File Name", font=ctk.CTkFont(weight="bold")).pack()
@@ -52,14 +48,18 @@ class GUI(ctk.CTk):
         self.btn_load.pack(pady=30)
         
         #-------------------------------------KEY FEATURES---------------------------------------------
+        
         self.stats_frame = ctk.CTkFrame(self)
-        self.stats_frame.pack(pady=10, padx=20, fill="x") # Added .pack()
+        self.stats_frame.pack(pady=10, padx=20, fill="x") 
         
         self.stats_title = ctk.CTkLabel(self.stats_frame, text="Key Features", font=ctk.CTkFont(weight="bold"))
         self.stats_title.pack(pady=5)
+
+        #Dynamic labels because different data types give different features
+        self.dynamic_labels = []
         
     
-    #BROWSING FOR CSV FILE
+    #Fiunding CSV
     def browse_file(self):
         #Choosing csv files only
         file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
@@ -76,11 +76,28 @@ class GUI(ctk.CTk):
         x = self.entry_x.get().strip()
         y = self.entry_y.get().strip()
         
+        #Calling the preprocessing function
         extracts = preprocessing.preprocess(filename, choice, x, y)
-        print(extracts)
         
-        for key,value in extracts.items() :
-            self.stat_labels[key].configure(text=f"{key.title()}: {value:.4f}")
+        #Clearing the previous labels
+        self.clear_stats()
+        
+        for key, value in extracts.items():
+                new_lbl = ctk.CTkLabel(
+                    self.stats_frame, 
+                    text=f"{key}: {value}", 
+                    font=ctk.CTkFont(size=12)
+                )
+                new_lbl.pack(pady=10, padx=200, anchor="w")
+                
+                # Save it so we can clear it next time
+                self.dynamic_labels.append(new_lbl)
+            
+    def clear_stats(self):
+        for label in self.dynamic_labels:
+            label.destroy()
+        # Reset the list
+        self.dynamic_labels = []
         
 #**************************************CHOOSING CORRECT FILTER FOR SPECIFIED DATA TYPE****************************************
 

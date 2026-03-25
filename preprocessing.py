@@ -1,7 +1,6 @@
 import numpy as np 
 import pandas as pd 
 import matplotlib.pyplot as plt
-from scipy import signal
 
 #file imports
 import filter_functions
@@ -14,33 +13,33 @@ def preprocess (filename, choice, x, y) :
         signal_data = np.array(df[y])
                 
         #-------------------------------------PLOTTING RAW DATA---------------------------
-        plt.figure(figsize=(20,15))
+        plt.figure(figsize=(12,8))
+        plt.tight_layout()
         plt.plot(df[x], df[y], color='pink')
         plt.title(f"Unfiltered plot of {choice} : {y} vs {x}")
         plt.xlabel(x)
         plt.ylabel(y)
-        plt.tight_layout()
         plt.grid(True)
         plt.show()
         #------------------------------------PREPROCESSING--------------------------------
-        signal_data = handle_missing_data(signal_data)
-        signal_data = remove_drift(signal_data)
-        signal_data = normalize(signal_data)
+        cleaned_data = handle_missing_data(signal_data)
+        if (choice != "Temperature") :
+            cleaned_data = remove_drift(cleaned_data)
+        cleaned_data = normalize(cleaned_data)
             
         #Getting the sampling frequency
-        #Calculating the time between each sample, 1/sampling period formula
         time_diff = np.diff(time)
         sampling_period = np.median(time_diff)
         fs = (1/sampling_period)
  
         #Applying correct filter for the given data type
-        extract = filter_functions.apply_filter(choice, signal_data, time, fs, signal_data)
+        extract = filter_functions.apply_filter(choice, cleaned_data, time, fs, signal_data)
+        
+        return extract
                 
     #Error message for incorrect inputted values from user
     except Exception as e:
         print("Error", str(e))
-        
-    return extract
             
 def handle_missing_data(signal):
 

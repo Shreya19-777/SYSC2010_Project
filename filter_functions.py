@@ -31,29 +31,13 @@ def apply_filter(choice, signal_data, t, fs, unfiltered) :
 def ecg_filter(fs, signal_data, t, unfiltered) :
     
     #Using FIR to lose less data about the QRS complex in ECG signal
-    '''
-    minimum = 0.5
-    high = 40
-    numtaps = 101
-    b = signal.firwin(numtaps, [minimum, high], fs=fs, pass_zero=False, window='hamming')
-    a = [1.0]
-    
-    filtered_ecg = signal.lfilter(b, a, signal_data)
-    plt.figure(figsize=(24,8))
-    plt.title("Filtered ECG Signal")
-    plt.xlabel("Time (s)")
-    plt.ylabel("Amplitude")
-    plt.plot(t, filtered_ecg, color='purple')
-    plt.show()
-    '''
-    
     minimum = 0.5
     high = 40
 
     sos = signal.butter(10, [minimum, high], btype='band', fs=fs, output='sos')
     bp_filtered_ecg = signal.sosfiltfilt(sos, signal_data)
 
-    plt.figure()
+    plt.figure(figsize=(12,8))
     plt.title("Band Pass Filtered Signal")
     plt.xlabel("Time (s)")
     plt.ylabel("Amplitude")
@@ -74,20 +58,21 @@ def ecg_filter(fs, signal_data, t, unfiltered) :
     extract = extracts.extract_ecg_features(bp_filtered_ecg)
     print(extract)
     
-    fft_plot.plot_fft("ECG", bp_filtered_ecg, 1/fs, unfiltered)
+    fft_plot.plot_fft("ECG", bp_filtered_ecg, fs, unfiltered)
     
     return extract
     
 #****************************************************Temperature**********************************************
 def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
-    nyquist = 0.5 * fs
-    cutoff = 0.9 * nyquist
-    normal_cutoff = cutoff / nyquist
+    
+    print(f"THE SAMPLING FREQUENCY IS {fs}")
+    
+    normal_cutoff = 0.2
     b, a = signal.butter(order, normal_cutoff, btype='low', analog=False)
     lp_filtered = signal.filtfilt(b, a, signal_data)
 
     plt.figure(figsize=(12,8))
-    plt.title("Filtered ECG Signal")
+    plt.title("Filtered Temperature Signal")
     plt.xlabel("Time (s)")
     plt.ylabel("Amplitude")
     plt.tight_layout()
@@ -96,7 +81,7 @@ def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
     
     #Comparison between filtered and unfiltered
     plt.figure(figsize=(12,8))
-    plt.title("Comparison of Filtered and Unfiltered ECG")
+    plt.title("Comparison of Filtered and Unfiltered Temperature")
     plt.xlabel("Time (s)")
     plt.ylabel("Amplitude")
     plt.tight_layout()
@@ -106,7 +91,7 @@ def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
     
     extract = extracts.extract_temp_features(lp_filtered)
     
-    fft.plot_fft("Temperature", lp_filtered, 1/fs, unfiltered)
+    fft_plot.plot_fft("Temperature", lp_filtered, fs, unfiltered)
     
     return extract
 
@@ -141,7 +126,7 @@ def respiration_lowpass_filter(signal_data, fs, order, unfiltered, t):
     plt.plot(t, lp_filtered, color='blue')
     plt.show()
     
-    fft_plot.plot_fft("Respiration", lp_filtered, 1/fs, unfiltered)
+    fft_plot.plot_fft("Respiration", lp_filtered, fs, unfiltered)
     
     extract = extracts.extract_respiration_features(lp_filtered)
     
@@ -180,7 +165,7 @@ def imu_lowpass_filter(signal_data, fs, order, unfiltered, t):
     plt.plot(t, lp_filtered, color='blue')
     plt.show()
     
-    fft_plot.plot_fft("IMU", lp_filtered, 1/fs, unfiltered)
+    fft_plot.plot_fft("IMU", lp_filtered, fs, unfiltered)
     
     extract = extracts.extract_motion_features(lp_filtered)
     
