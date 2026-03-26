@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 from scipy.signal import butter, filtfilt, firwin
 
-
 def handle_missing_data(signal):
 
     s = pd.Series(signal, dtype=float)  #convert to series for easier handling of missing data
