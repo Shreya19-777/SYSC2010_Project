@@ -66,8 +66,11 @@ def ecg_filter(fs, signal_data, t, unfiltered) :
 def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
     
     print(f"THE SAMPLING FREQUENCY IS {fs}")
-    
-    normal_cutoff = 0.2
+   
+    nyquist = 0.5 * fs
+    cutoff = 0.4 * nyquist
+    normal_cutoff = cutoff / nyquist
+
     b, a = signal.butter(order, normal_cutoff, btype='low', analog=False)
     lp_filtered = signal.filtfilt(b, a, signal_data)
 
@@ -138,7 +141,7 @@ def imu_lowpass_filter(signal_data, fs, order, unfiltered, t):
     #Keeps movement trends while removing high-frequency jitter.
     nyquist = 0.5 * fs
     # Higher cutoff to capture rapid physical movements
-    cutoff = 20.0 
+    cutoff = 10.0 
     
     if cutoff >= nyquist:
         cutoff = 0.9 * nyquist

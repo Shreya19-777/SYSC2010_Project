@@ -11,7 +11,7 @@ def preprocess (filename, choice, x, y) :
         print(df[x])
         time = np.array(df[x])
         signal_data = np.array(df[y])
-                
+        print("1- preprocessing data loaded successfully")      
         #-------------------------------------PLOTTING RAW DATA---------------------------
         plt.figure(figsize=(12,8))
         plt.tight_layout()
@@ -21,12 +21,13 @@ def preprocess (filename, choice, x, y) :
         plt.ylabel(y)
         plt.grid(True)
         plt.show()
+        print("2- preprocessing data plotted successfully")  
         #------------------------------------PREPROCESSING--------------------------------
         cleaned_data = handle_missing_data(signal_data)
         if (choice != "Temperature") :
             cleaned_data = remove_drift(cleaned_data)
         cleaned_data = normalize(cleaned_data)
-            
+        print("3- preprocessing data cleaned successfully")  
         #Getting the sampling frequency
         time_diff = np.diff(time)
         sampling_period = np.median(time_diff)
@@ -34,12 +35,13 @@ def preprocess (filename, choice, x, y) :
  
         #Applying correct filter for the given data type
         extract = filter_functions.apply_filter(choice, cleaned_data, time, fs, signal_data)
-        
+        print("4- preprocessing dataextracted successfully")  
         return extract
                 
     #Error message for incorrect inputted values from user
     except Exception as e:
         print("Error", str(e))
+        return {}
             
 def handle_missing_data(signal):
 
