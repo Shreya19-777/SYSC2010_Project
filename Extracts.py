@@ -8,7 +8,7 @@ from scipy.signal import find_peaks
 
 def extract_ecg_features(filtered) :
     peaks, _ = signal.find_peaks(filtered, height = 1.0, distance = 100)
-    #HR estimation calculations
+
     rr_intervals = np.diff(peaks) / 360
     heart_rate = 60 / np.mean(rr_intervals)
 
