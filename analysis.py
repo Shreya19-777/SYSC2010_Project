@@ -4,13 +4,58 @@ import matplotlib.pyplot as plt
 from scipy import signal
 from scipy.signal import find_peaks
 
-#Feature extraction
+#*********************************************FFT**********************************************88
+def plot_fft(dtype, signal_data, sampling_rate, unfiltered):
+    
+    print(sampling_rate)
+    
+    N = len(signal_data)
+    T = 1.0 / sampling_rate
+    
+    freq_axis = np.fft.rfftfreq(N, d=T)
 
-def extract_ecg_features(filtered) :
-    peaks, _ = signal.find_peaks(filtered, height = 1.0, distance = 100)
+    fft_unfiltered = (np.abs(np.fft.rfft(unfiltered)) / N) * 2
+    fft_filtered = (np.abs(np.fft.rfft(signal_data)) / N) * 2
+    
+    plt.figure(figsize=(12, 8))
+    plt.plot(freq_axis, fft_unfiltered, label='Unfiltered signal', alpha=0.4, color='red')
+    plt.plot(freq_axis, fft_filtered, label='Filtered signal', color='blue')
 
-    rr_intervals = np.diff(peaks) / 360
-    heart_rate = 60 / np.mean(rr_intervals)
+#adjust y-axis limits to better visualize differences
+    max_amp = max(np.max(fft_unfiltered), np.max(fft_filtered))
+    plt.ylim(0, max_amp * 1.2)
+    
+    if dtype == "Respiration":
+        plt.xlim(0, 2)
+    elif dtype == "ECG":
+        plt.xlim(0, 10)
+    elif dtype == "Temperature":
+        plt.xlim(0, 0.5)
+    else:
+        plt.xlim(0, 50)
+        
+    plt.title("Frequency Domain Analysis")
+    plt.xlabel("Frequency (Hz)")
+    plt.ylabel("Amplitude") 
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+#***************************************Feature extraction****************************************8
+
+def extract_ecg_features(filtered, fs) :
+    
+    height_threshold = np.percentile(filtered, 95)
+
+    peaks, _ = signal.find_peaks(filtered, height=height_threshold, distance=fs/3)
+
+    # 2. Add a fallback check
+    if len(peaks) > 1:
+        rr_intervals = np.diff(peaks) / 360
+        heart_rate = 60 / np.mean(rr_intervals)
+    else:
+        print("Warning: No peaks detected! Check your 'height' parameter.")
+        heart_rate = 0 # Prevents NaN from breaking the rest of your code
 
     features = {
         "Mean": np.mean(filtered),
@@ -57,10 +102,12 @@ def extract_respiration_features(lp_filtered_signal, fs):
     duration_min = (len(lp_filtered_signal) / fs) / 60
     bpm = num_breaths / duration_min if duration_min > 0 else 0
 
-    return {
+    features = {
         "Mean": round(mean_val, 3),
         "Std Dev": round(std_val, 3),
         "RMS": round(rms_val, 3),
         "Range": round(ptp_range, 3),
         "Breathing Rate (BPM)": round(bpm, 1)
     }
+    
+    return features

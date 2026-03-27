@@ -1,8 +1,8 @@
-import fft_plot
 import matplotlib.pyplot as plt
 from scipy import signal
 
-import extracts
+#File imports
+import analysis
 
 def apply_filter(choice, signal_data, t, fs, unfiltered) :
     #ECG Signal:
@@ -20,7 +20,6 @@ def apply_filter(choice, signal_data, t, fs, unfiltered) :
         print("Applying Motion Median Filter")
         extract = imu_lowpass_filter(signal_data, fs, 4, unfiltered, t)
         return extract
-
     #Respiration
     elif choice == "Respiration" :
         print("Applying Respiration Filter")
@@ -55,10 +54,9 @@ def ecg_filter(fs, signal_data, t, unfiltered) :
     plt.plot(t, bp_filtered_ecg, color='purple')
     plt.show()
     
-    extract = extracts.extract_ecg_features(bp_filtered_ecg)
-    print(extract)
+    extract = analysis.extract_ecg_features(bp_filtered_ecg, fs)
     
-    fft_plot.plot_fft("ECG", bp_filtered_ecg, fs, unfiltered)
+    analysis.plot_fft("ECG", bp_filtered_ecg, fs, unfiltered)
     
     return extract
     
@@ -66,11 +64,8 @@ def ecg_filter(fs, signal_data, t, unfiltered) :
 def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
     
     print(f"THE SAMPLING FREQUENCY IS {fs}")
-   
-    nyquist = 0.5 * fs
-    cutoff = 0.4 * nyquist
-    normal_cutoff = cutoff / nyquist
-
+    
+    normal_cutoff = 0.2
     b, a = signal.butter(order, normal_cutoff, btype='low', analog=False)
     lp_filtered = signal.filtfilt(b, a, signal_data)
 
@@ -92,9 +87,9 @@ def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
     plt.plot(t, lp_filtered, color='blue')
     plt.show()
     
-    extract = extracts.extract_temp_features(lp_filtered)
+    extract = analysis.extract_temp_features(lp_filtered)
     
-    fft_plot.plot_fft("Temperature", lp_filtered, fs, unfiltered)
+    analysis.plot_fft("Temperature", lp_filtered, fs, unfiltered)
     
     return extract
 
@@ -129,9 +124,9 @@ def respiration_lowpass_filter(signal_data, fs, order, unfiltered, t):
     plt.plot(t, lp_filtered, color='blue')
     plt.show()
     
-    fft_plot.plot_fft("Respiration", lp_filtered, fs, unfiltered)
+    analysis.plot_fft("Respiration", lp_filtered, fs, unfiltered)
     
-    extract = extracts.extract_respiration_features(lp_filtered)
+    extract = analysis.extract_respiration_features(lp_filtered, fs)
     
     return extract
 
@@ -141,7 +136,7 @@ def imu_lowpass_filter(signal_data, fs, order, unfiltered, t):
     #Keeps movement trends while removing high-frequency jitter.
     nyquist = 0.5 * fs
     # Higher cutoff to capture rapid physical movements
-    cutoff = 10.0 
+    cutoff = 20.0 
     
     if cutoff >= nyquist:
         cutoff = 0.9 * nyquist
@@ -168,9 +163,9 @@ def imu_lowpass_filter(signal_data, fs, order, unfiltered, t):
     plt.plot(t, lp_filtered, color='blue')
     plt.show()
     
-    fft_plot.plot_fft("IMU", lp_filtered, fs, unfiltered)
+    analysis.plot_fft("IMU", lp_filtered, fs, unfiltered)
     
-    extract = extracts.extract_motion_features(lp_filtered)
+    extract = analysis.extract_motion_features(lp_filtered)
     
     return extract
     

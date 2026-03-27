@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 #file imports
-import filter_functions
+import filters
 
 def preprocess (filename, choice, x, y) :
     try:
@@ -34,7 +34,7 @@ def preprocess (filename, choice, x, y) :
         fs = (1/sampling_period)
  
         #Applying correct filter for the given data type
-        extract = filter_functions.apply_filter(choice, cleaned_data, time, fs, signal_data)
+        extract = filters.apply_filter(choice, cleaned_data, time, fs, signal_data)
         print("4- preprocessing dataextracted successfully")  
         return extract
                 
