@@ -3,45 +3,29 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 #file imports
+import data_loader
 import filters
 
 def preprocess (filename, choice, x, y) :
-    try:
-        df = pd.read_csv(filename)
-        print(df[x])
-        time = np.array(df[x])
-        signal_data = np.array(df[y])
-        print("1- preprocessing data loaded successfully")      
-        #-------------------------------------PLOTTING RAW DATA---------------------------
-        plt.figure(figsize=(12,8))
-        plt.tight_layout()
-        plt.plot(df[x], df[y], color='pink')
-        plt.title(f"Unfiltered plot of {choice} : {y} vs {x}")
-        plt.xlabel(x)
-        plt.ylabel(y)
-        plt.grid(True)
-        plt.show()
-        print("2- preprocessing data plotted successfully")  
-        #------------------------------------PREPROCESSING--------------------------------
-        cleaned_data = handle_missing_data(signal_data)
-        if (choice != "Temperature") :
-            cleaned_data = remove_drift(cleaned_data)
+    signal_data, time = data_loader.data_load(filename, choice, x, y)
+    
+    #------------------------------------PREPROCESSING--------------------------------
+    cleaned_data = handle_missing_data(signal_data)
+    if (choice != "Temperature") :
+        cleaned_data = remove_drift(cleaned_data)
         cleaned_data = normalize(cleaned_data)
-        print("3- preprocessing data cleaned successfully")  
-        #Getting the sampling frequency
-        time_diff = np.diff(time)
-        sampling_period = np.median(time_diff)
-        fs = (1/sampling_period)
+    print("3- preprocessing data cleaned successfully")  
+        
+    #Getting the sampling frequency
+    time_diff = np.diff(time)
+    sampling_period = np.median(time_diff)
+    fs = (1/sampling_period)
  
-        #Applying correct filter for the given data type
-        extract = filters.apply_filter(choice, cleaned_data, time, fs, signal_data)
-        print("4- preprocessing dataextracted successfully")  
-        return extract
+    #Applying correct filter for the given data type
+    extract = filters.apply_filter(choice, cleaned_data, time, fs, signal_data)
+    print("4- preprocessing dataextracted successfully")  
+    return extract
                 
-    #Error message for incorrect inputted values from user
-    except Exception as e:
-        print("Error", str(e))
-        return {}
             
 def handle_missing_data(signal):
 
@@ -62,7 +46,7 @@ def remove_drift(signal):
     mean_val = np.mean(signal)
     return signal - mean_val
 
-#normalization IMU
+#normalization
 def normalize(signal):
     min_val = np.min(signal)
     max_val = np.max(signal)

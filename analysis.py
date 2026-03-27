@@ -6,13 +6,12 @@ from scipy.signal import find_peaks
 
 #*********************************************FFT**********************************************88
 def plot_fft(dtype, signal_data, sampling_rate, unfiltered):
-    
-    print(sampling_rate)
-    
+
+    #
     N = len(signal_data)
-    T = 1.0 / sampling_rate
+    period = 1.0 / sampling_rate
     
-    freq_axis = np.fft.rfftfreq(N, d=T)
+    freq_axis = np.fft.rfftfreq(N, d=period)
 
     fft_unfiltered = (np.abs(np.fft.rfft(unfiltered)) / N) * 2
     fft_filtered = (np.abs(np.fft.rfft(signal_data)) / N) * 2
@@ -21,7 +20,7 @@ def plot_fft(dtype, signal_data, sampling_rate, unfiltered):
     plt.plot(freq_axis, fft_unfiltered, label='Unfiltered signal', alpha=0.4, color='red')
     plt.plot(freq_axis, fft_filtered, label='Filtered signal', color='blue')
 
-#adjust y-axis limits to better visualize differences
+    #adjust y-axis limits to better visualize differences
     max_amp = max(np.max(fft_unfiltered), np.max(fft_filtered))
     plt.ylim(0, max_amp * 1.2)
     
@@ -45,17 +44,16 @@ def plot_fft(dtype, signal_data, sampling_rate, unfiltered):
 
 def extract_ecg_features(filtered, fs) :
     
+    #Calculating the heart rate
     height_threshold = np.percentile(filtered, 95)
 
     peaks, _ = signal.find_peaks(filtered, height=height_threshold, distance=fs/3)
 
-    # 2. Add a fallback check
     if len(peaks) > 1:
         rr_intervals = np.diff(peaks) / 360
         heart_rate = 60 / np.mean(rr_intervals)
     else:
-        print("Warning: No peaks detected! Check your 'height' parameter.")
-        heart_rate = 0 # Prevents NaN from breaking the rest of your code
+        heart_rate = 0
 
     features = {
         "Mean": np.mean(filtered),
@@ -63,11 +61,12 @@ def extract_ecg_features(filtered, fs) :
         "RMS": np.sqrt(np.mean(filtered**2)), 
         "Peak Acceleration": np.max(np.abs(filtered)),   
         "Peak-to-Peak": np.ptp(filtered),
+        "RR intervals": rr_intervals,
         "Heart Rate": heart_rate                 
     }
     return features
 
-def extract_temp_features(filtered) :
+def extract_temp_features(filtered, fs) :
     features = {
         "Mean": np.mean(filtered),
         "Std Dev": np.std(filtered),

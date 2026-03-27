@@ -63,11 +63,20 @@ def ecg_filter(fs, signal_data, t, unfiltered) :
 #****************************************************Temperature**********************************************
 def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
     
-    print(f"THE SAMPLING FREQUENCY IS {fs}")
+    mean = signal_data.mean()
+    cutoff = 0.001
+    nyq = 0.5 * fs
+    normal_cutoff = cutoff / nyq
+
+    b, a = signal.butter(order, normal_cutoff, btype='high', analog=False)
+    
+    filtered_signal = signal.filtfilt(b, a, signal_data)
+    
+    filtered_signal += mean
     
     normal_cutoff = 0.2
     b, a = signal.butter(order, normal_cutoff, btype='low', analog=False)
-    lp_filtered = signal.filtfilt(b, a, signal_data)
+    lp_filtered = signal.filtfilt(b, a, filtered_signal)
 
     plt.figure(figsize=(12,8))
     plt.title("Filtered Temperature Signal")
@@ -87,7 +96,7 @@ def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
     plt.plot(t, lp_filtered, color='blue')
     plt.show()
     
-    extract = analysis.extract_temp_features(lp_filtered)
+    extract = analysis.extract_temp_features(lp_filtered, fs)
     
     analysis.plot_fft("Temperature", lp_filtered, fs, unfiltered)
     
