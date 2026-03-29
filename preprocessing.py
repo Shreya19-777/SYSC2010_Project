@@ -22,9 +22,9 @@ def preprocess (filename, choice, x, y) :
     fs = (1/sampling_period)
  
     #Applying correct filter for the given data type
-    extract = filters.apply_filter(choice, cleaned_data, time, fs, signal_data)
+    package = filters.apply_filter(choice, cleaned_data, time, fs, signal_data)
     print("4- preprocessing dataextracted successfully")  
-    return raw_data, extract
+    return package 
                 
             
 def handle_missing_data(signal):

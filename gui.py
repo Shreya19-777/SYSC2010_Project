@@ -112,51 +112,57 @@ class GUI(ctk.CTk):
         
 
         # get filtered data and extracted features
-        extracts = preprocessing.preprocess(filename, choice, x, y)
-        raw_data = extracts[0]  # Unpack raw data
-        if raw_data is None:
-            print("data_load returned None")
-            return
-        raw_signal, raw_time = raw_data
-
-        cleaned_signal = extracts[1]  # Unpack cleaned signal
-        if cleaned_signal is None:
+        pck= preprocessing.preprocess(filename, choice, x, y)
+        if pck is None:
             print("preprocess returned None")
             return
-        clean_signal, cleaned_time = cleaned_signal
 
             # Update the time domain Plot (ax1)
         self.ax1.clear()
         # Plot Comparison
         if self.show_raw_switch.get() == 1:
-            self.ax1.plot(raw_time, raw_signal, color='gray', alpha=0.5, label='Raw')
+            self.ax1.plot(pck["time"], pck["raw_signal"], color='gray', alpha=0.5, label='Raw')
         
-        self.ax1.plot(cleaned_time, clean_signal, color='blue', label='Filtered')
+        self.ax1.plot(pck["time"], pck["clean_signal"], color='blue', label='Filtered')
         self.ax1.set_title(f"Raw VS Filtered {choice} Signal")
-        self.ax1.tick_params(axis='x', colors='white')
-        self.ax1.tick_params(axis='y', colors='white')
-
+        self.ax1.tick_params(colors='white')
+    
         #  Axis Labels 
         self.ax1.set_xlabel("Time (s)", color='Black')
         self.ax1.set_ylabel("Amplitude (mV)", color='Black')
-
-        self.figure.tight_layout()
         self.ax1.legend() 
+
+        self.ax2.clear()
+        self.ax2.plot(pck['fft_freqs'], pck['raw_fft_mag'], color='gray', alpha=0.3, label='Raw FFT')
+        self.ax2.plot(pck['fft_freqs'], pck['fft_mag'], color='orange', label='Clean FFT')
+        self.ax2.set_title("FFT Spectrum Comparison")
+        self.ax2.tick_params(colors='white')
+        self.ax2.set_xlabel("Frequency (Hz)", color ='Black')
+        self.ax2.set_ylabel("Magnitude", color='Black')
+        self.ax2.legend()
 
         self.figure.tight_layout()
         self.canvas.draw_idle()  #
         self.update_idletasks()  
+       
+       # -----------------------Update the stats in the sidebar-----------------------
         self.clear_stats()
         
-        for key, value in extracts.items():
-                new_lbl = ctk.CTkLabel(
-                    self.stats_frame, 
-                    text=f"{key}: {value}", 
-                    font=ctk.CTkFont(size=12)
-                )
-                new_lbl.pack(pady=10, padx=20, anchor="w")
-                # Store the label reference so we can clear them later
-                self.dynamic_labels.append(new_lbl)
+        for key, value in pck.items():
+                if key in ["raw_signal", "clean_signal", "time", "fft_freqs", "fft_mag", "raw_fft_mag"]:
+                    continue  # Skip these keys as they are not stats
+
+                if isinstance(value, dict):
+                    for sub_key, sub_value in value.items():
+                        sub_value = round(sub_value, 2)  # Round floats to 2 decimal places for cleaner display
+                        new_lbl = ctk.CTkLabel(
+                            self.stats_frame, 
+                            text=f"{sub_key}: {sub_value}", 
+                            font=ctk.CTkFont(size=12)
+                        )
+                        new_lbl.pack(pady=10, padx=20, anchor="w")
+                        self.dynamic_labels.append(new_lbl)
+            
             
     def clear_stats(self):
         for label in self.dynamic_labels:

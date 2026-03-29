@@ -9,23 +9,23 @@ def apply_filter(choice, signal_data, t, fs, unfiltered) :
     #ECG Signal:
     if choice == "ECG":
         print("Applying ECG Bandpass Filter")
-        filtered_signal, extract = ecg_filter(fs, signal_data, t, unfiltered) 
-        return filtered_signal, extract
+        pack = ecg_filter(fs, signal_data, t, unfiltered) 
+        return pack
     #Temperature:
     elif choice == "Temperature" :
         print("Applying Temperature Filter")
-        filtered_signal, extract = temp_lowpass_filter(signal_data, fs, 5, unfiltered, t)
-        return filtered_signal, extract
+        package = temp_lowpass_filter(signal_data, fs, 5, unfiltered, t)
+        return package
     #Motion
     elif choice == "Motion":
         print("Applying Motion Median Filter")
-        filtered_signal, extract = imu_lowpass_filter(signal_data, fs, 4, unfiltered, t)
-        return filtered_signal, extract
+        package = imu_lowpass_filter(signal_data, fs, 4, unfiltered, t)
+        return package
     #Respiration
     elif choice == "Respiration" :
         print("Applying Respiration Filter")
-        filtered_signal, extract = respiration_lowpass_filter(signal_data, fs, 4, unfiltered, t)
-        return filtered_signal, extract
+        package = respiration_lowpass_filter(signal_data, fs, 4, unfiltered, t)
+        return package
 
 #Applying the different filters for each type of signal
 def ecg_filter(fs, signal_data, t, unfiltered) :
@@ -55,11 +55,23 @@ def ecg_filter(fs, signal_data, t, unfiltered) :
     #plt.plot(t, bp_filtered_ecg, color='purple')
     #plt.show()
     
-    extract = analysis.extract_ecg_features(bp_filtered_ecg, fs)
+    stats = analysis.extract_ecg_features(bp_filtered_ecg, fs)
     
-    analysis.plot_fft("ECG", bp_filtered_ecg, fs, unfiltered)
+    fft_freq, fft_mag = analysis.plot_fft("ECG", bp_filtered_ecg, fs, unfiltered)
+    raw_fft_freq, raw_fft_mag = analysis.plot_fft_unfiltered("ECG", bp_filtered_ecg, fs, unfiltered)
+
+    package = {
+        "raw_signal": unfiltered,
+        "clean_signal": bp_filtered_ecg,
+        "time": t,
+        "stats": stats,           # This is your dictionary of Mean, BPM, etc.
+        "fft_freqs": fft_freq,
+        "fft_mag": fft_mag,
+        "raw_fft_mag": raw_fft_mag # To compare FFTs on ax2
+    }
     
-    return bp_filtered_ecg,extract
+    return package
+
     
 #****************************************************Temperature**********************************************
 def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
@@ -97,11 +109,20 @@ def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
     #plt.plot(t, lp_filtered, color='blue')
     #plt.show()
     
-    extract = analysis.extract_temp_features(lp_filtered, fs)
+    stats = analysis.extract_temp_features(lp_filtered, fs)
     
-    analysis.plot_fft("Temperature", lp_filtered, fs, unfiltered)
-    
-    return lp_filtered,extract
+    fft_freq, fft_mag = analysis.plot_fft("Temperature", lp_filtered, fs, unfiltered)
+    raw_fft_freq, raw_fft_mag = analysis.plot_fft_unfiltered("Temperature", lp_filtered, fs, unfiltered)
+    package= {
+        "raw_signal": unfiltered,
+        "clean_signal": lp_filtered,
+        "time": t,
+        "stats": stats,
+        "fft_freqs": fft_freq,
+        "fft_mag": fft_mag,
+        "raw_fft_mag": raw_fft_mag
+        }
+    return package
 
 #****************************************************Resoiration**********************************************
 def respiration_lowpass_filter(signal_data, fs, order, unfiltered, t):
@@ -134,11 +155,22 @@ def respiration_lowpass_filter(signal_data, fs, order, unfiltered, t):
     #plt.plot(t, lp_filtered, color='blue')
     #plt.show()
     
-    analysis.plot_fft("Respiration", lp_filtered, fs, unfiltered)
+    fft_freq, fft_mag = analysis.plot_fft("Respiration", lp_filtered, fs, unfiltered)
+    raw_fft_freq, raw_fft_mag = analysis.plot_fft_unfiltered("Respiration", lp_filtered, fs, unfiltered)
     
-    extract = analysis.extract_respiration_features(lp_filtered, fs)
+    stats = analysis.extract_respiration_features(lp_filtered, fs)
     
-    return lp_filtered, extract
+    package = {
+        "raw_signal": unfiltered,
+        "clean_signal": lp_filtered,
+        "time": t,
+        "stats": stats,
+        "fft_freqs": fft_freq,
+        "fft_mag": fft_mag,
+        "raw_fft_mag": raw_fft_mag
+    }
+    
+    return package
 
 #****************************************************IMU**********************************************
 def imu_lowpass_filter(signal_data, fs, order, unfiltered, t):
@@ -173,10 +205,20 @@ def imu_lowpass_filter(signal_data, fs, order, unfiltered, t):
     #plt.plot(t, lp_filtered, color='blue')
     #plt.show()
     
-    analysis.plot_fft("IMU", lp_filtered, fs, unfiltered)
+    fft_freq, fft_mag = analysis.plot_fft("IMU", lp_filtered, fs, unfiltered)
+    raw_fft_freq, raw_fft_mag = analysis.plot_fft_unfiltered("IMU", lp_filtered, fs, unfiltered)
     
-    extract = analysis.extract_motion_features(lp_filtered)
+    stats = analysis.extract_motion_features(lp_filtered)
     
-    return lp_filtered,extract
+    package = {
+        "raw_signal": unfiltered,
+        "clean_signal": lp_filtered,
+        "time": t,
+        "stats": stats,
+        "fft_freqs": fft_freq,
+        "fft_mag": fft_mag,
+        "raw_fft_mag": raw_fft_mag
+    }
     
+    return package
     
