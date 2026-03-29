@@ -53,6 +53,8 @@ def extract_ecg_features(filtered, fs) :
         rr_intervals = np.diff(peaks) / 360
         heart_rate = 60 / np.mean(rr_intervals)
     else:
+        #In the case of an error set heaartrate to 0 to avoid NaN
+        print("Error with heart rate calculation")
         heart_rate = 0
 
     features = {

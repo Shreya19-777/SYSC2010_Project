@@ -65,7 +65,6 @@ class GUI(ctk.CTk):
             self.entry_file.insert(0, file_path)
             
     def handle_selection(self):
-        
         choice = self.dropdown.get()
 
         #Reading csv filename and columns
@@ -76,7 +75,7 @@ class GUI(ctk.CTk):
         #Calling the preprocessing function
         extracts = preprocessing.preprocess(filename, choice, x, y)
         
-        if extracts is None:  # ← ADD THIS
+        if extracts is None:  
             print("preprocess returned None")
             return
         #Clearing the previous labels

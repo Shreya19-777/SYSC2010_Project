@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from scipy import signal
+from tkinter import messagebox
 
 #File imports
 import analysis
@@ -58,11 +59,15 @@ def ecg_filter(fs, signal_data, t, unfiltered) :
     
     analysis.plot_fft("ECG", bp_filtered_ecg, fs, unfiltered)
     
+    if extract is None:
+        messagebox.showwarning("Data Error", "The selected file has no valid data to process.")
+        return
+    
     return extract
     
 #****************************************************Temperature**********************************************
 def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
-    
+    #Lowpass filter to remove baseline drift while maintaining the mean
     mean = signal_data.mean()
     cutoff = 0.001
     nyq = 0.5 * fs
@@ -100,6 +105,10 @@ def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
     
     analysis.plot_fft("Temperature", lp_filtered, fs, unfiltered)
     
+    if extract is None:
+        messagebox.showwarning("Data Error", "The selected file has no valid data to process.")
+        return
+    
     return extract
 
 #****************************************************Resoiration**********************************************
@@ -136,6 +145,10 @@ def respiration_lowpass_filter(signal_data, fs, order, unfiltered, t):
     analysis.plot_fft("Respiration", lp_filtered, fs, unfiltered)
     
     extract = analysis.extract_respiration_features(lp_filtered, fs)
+    
+    if extract is None:
+        messagebox.showwarning("Data Error", "The selected file has no valid data to process.")
+        return
     
     return extract
 
@@ -175,6 +188,10 @@ def imu_lowpass_filter(signal_data, fs, order, unfiltered, t):
     analysis.plot_fft("IMU", lp_filtered, fs, unfiltered)
     
     extract = analysis.extract_motion_features(lp_filtered)
+    
+    if extract is None:
+        messagebox.showwarning("Data Error", "The selected file has no valid data to process.")
+        return
     
     return extract
     
