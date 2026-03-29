@@ -100,7 +100,6 @@ class GUI(ctk.CTk):
             self.entry_file.insert(0, file_path)
             
     def handle_selection(self):
-        
         choice = self.dropdown.get()
 
         #Reading csv filename and columns

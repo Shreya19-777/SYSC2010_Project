@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from scipy import signal
+from tkinter import messagebox
 
 #File imports
 import analysis
@@ -62,7 +63,7 @@ def ecg_filter(fs, signal_data, t, unfiltered) :
     
 #****************************************************Temperature**********************************************
 def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
-    
+    #Lowpass filter to remove baseline drift while maintaining the mean
     mean = signal_data.mean()
     cutoff = 0.001
     nyq = 0.5 * fs
