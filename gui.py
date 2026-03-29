@@ -2,9 +2,11 @@ import customtkinter as ctk
 from tkinter import filedialog
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
 #Importing files
 import preprocessing
+import data_loader
 
 class GUI(ctk.CTk):
     def __init__(self):
@@ -16,23 +18,25 @@ class GUI(ctk.CTk):
 #-------------------------------------SIDEBAR---------------------------------------------(for user inputs and ststs)----------------------
         self.sidebar = ctk.CTkFrame(self, width=300)
         self.sidebar.pack(side="left", fill="y", padx=10, pady=10)
+        self.sidebar.pack_propagate(False)
 
         #Getting CSV file name
-        self.label_title = ctk.CTkLabel(self.sidebar, text="CSV File Name", font=ctk.CTkFont(weight="bold")).pack()
-        self.entry_file = ctk.CTkEntry(self.sidebar, width=300)
+        self.label_title = ctk.CTkLabel(self.sidebar, text="CSV File Name", font=ctk.CTkFont(weight="bold"))
+        self.label_title.pack(pady = (10, 5))
+        self.entry_file = ctk.CTkEntry(self.sidebar, width=250)
         self.entry_file.pack(pady=5)
         
         self.btn_browse = ctk.CTkButton(self.sidebar, text="Browse File", command=self.browse_file)
         self.btn_browse.pack(pady=5)
 
         #Getting the x axis column name (time)
-        ctk.CTkLabel(self.sidebar, text="X-axis Column (Time): ").pack()
-        self.entry_x = ctk.CTkEntry(self.sidebar, width=300)
+        ctk.CTkLabel(self.sidebar, text="X-axis Column (Time): ").pack(pady=(10, 0))
+        self.entry_x = ctk.CTkEntry(self.sidebar, width=250)
         self.entry_x.pack(pady=5)
 
         #Getting y axis column name (signal)
-        ctk.CTkLabel(self.sidebar, text="Y-axis Column (Signal): ").pack()
-        self.entry_y = ctk.CTkEntry(self.sidebar, width=300)
+        ctk.CTkLabel(self.sidebar, text="Y-axis Column (Signal): ").pack(pady=(10, 0))
+        self.entry_y = ctk.CTkEntry(self.sidebar, width=250)
         self.entry_y.pack(pady=5)
 
         #Dropdown list (choosing data type)
@@ -47,13 +51,13 @@ class GUI(ctk.CTk):
             command=self.handle_selection,
             fg_color="transparent", 
             border_width=2,
-            text_color=("gray10", "#DCE4EE"))
+            text_color=("gray10", "#080808"))
         self.btn_load.pack(pady=30)
 
             #-------------------------------------KEY FEATURES---------------------------------------------
         
         self.stats_frame = ctk.CTkFrame(self.sidebar, fg_color="transparent")
-        self.stats_frame.pack(pady=10, padx=20, fill="x") 
+        self.stats_frame.pack(pady=10, fill="x") 
         
         self.stats_title = ctk.CTkLabel(self.stats_frame, text="Key Features", font=ctk.CTkFont(weight="bold"))
         self.stats_title.pack(pady=5)
@@ -67,11 +71,24 @@ class GUI(ctk.CTk):
     #------------------------------------Matplotlib-----------------------------------------------
        
         self.figure, (self.ax1, self.ax2) = plt.subplots(2, 1, figsize=(6, 8))
-        self.figure.patch.set_facecolor('#2b2b2b') 
+        self.figure.patch.set_facecolor("#686767F8") 
         self.canvas = FigureCanvasTkAgg(self.figure, master=self.graph_frame)
-        self.canvas.get_tk_widget().pack(fill="both", expand=True)
+                #toolbar for zooming and panning
+        self.toolbar = NavigationToolbar2Tk(self.canvas, self.graph_frame)
+        self.toolbar.update()
+        self.toolbar.pack(side="top", fill="x")
+        
+        self.canvas.get_tk_widget().pack(side="bottom", fill="both", expand=True)
         
 
+       
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+    def on_closing(self):
+        self.withdraw() # Hide the window immediately
+        self.quit()     # Stop the main loop
+        self.destroy()  # Clean up resources
+  
     #Fiunding CSV
     def browse_file(self):
         #Choosing csv files only
@@ -89,13 +106,40 @@ class GUI(ctk.CTk):
         x = self.entry_x.get().strip()
         y = self.entry_y.get().strip()
         
-        #Calling the preprocessing function
+        # Get raw data 
+        raw_data = data_loader.data_load(filename, choice, x, y)
+        if raw_data is None:
+            print("data_load returned None")
+            return
+        raw_signal, raw_time = raw_data
+
+        # get filtered data and extracted features
         extracts = preprocessing.preprocess(filename, choice, x, y)
         
-        if extracts is None:  # ← ADD THIS
-            print("preprocess returned None")
-            return
+            # 2. Update the TIME DOMAIN Plot (ax1)
+        self.ax1.clear()
+        self.ax1.plot(raw_time, raw_signal, color='red', alpha=0.5, label='Unfiltered') # Light gray background
+        self.ax1.tick_params(axis='x', colors='white')
+        self.ax1.tick_params(axis='y', colors='white')
+
+        # 2. Add Axis Labels (so you know what the numbers mean)
+        self.ax1.set_xlabel("Time (s)", color='Black')
+        self.ax1.set_ylabel("Amplitude (mV)", color='Black')
+
+        # 3. Important: If they are still cut off, use tight_layout
+        self.figure.tight_layout()
+       # self.ax1.plot(time, filtered, color='pink', label='Filtered')        # Bright pink foreground
+        self.ax1.set_title("Raw VS Filtered Comparison")
+        self.ax1.legend() # This adds the 'U
+
+       # if signal, time is None:  # ← ADD THIS
+           # print("preprocess returned None")
+           # return
         #Clearing the previous labels
+        # Add this at the end of handle_selection
+        self.figure.tight_layout()
+        self.canvas.draw_idle()  # This is faster than draw()
+        self.update_idletasks()  # This forces the toolbar and buttons to refresh
         self.clear_stats()
         
         for key, value in extracts.items():
@@ -104,7 +148,7 @@ class GUI(ctk.CTk):
                     text=f"{key}: {value}", 
                     font=ctk.CTkFont(size=12)
                 )
-                new_lbl.pack(pady=10, padx=200, anchor="w")
+                new_lbl.pack(pady=10, padx=20, anchor="w")
                 
                 # Save it so we can clear it next time
                 self.dynamic_labels.append(new_lbl)
