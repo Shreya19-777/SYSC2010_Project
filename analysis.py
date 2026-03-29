@@ -33,12 +33,12 @@ def plot_fft(dtype, signal_data, sampling_rate, unfiltered):
     else:
         plt.xlim(0, 50)
         
-    plt.title("Frequency Domain Analysis")
-    plt.xlabel("Frequency (Hz)")
-    plt.ylabel("Amplitude") 
-    plt.legend()
-    plt.grid(True)
-    plt.show()
+    #plt.title("Frequency Domain Analysis")
+    #plt.xlabel("Frequency (Hz)")
+    #plt.ylabel("Amplitude") 
+    #plt.legend()
+    #plt.grid(True)
+   # plt.show()
 
 #***************************************Feature extraction****************************************8
 

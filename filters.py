@@ -8,24 +8,24 @@ def apply_filter(choice, signal_data, t, fs, unfiltered) :
     #ECG Signal:
     if choice == "ECG":
         print("Applying ECG Bandpass Filter")
-        extract = ecg_filter(fs, signal_data, t, unfiltered) 
-        return extract
+        filtered_signal, extract = ecg_filter(fs, signal_data, t, unfiltered) 
+        return filtered_signal, extract
     #Temperature:
     elif choice == "Temperature" :
         print("Applying Temperature Filter")
-        extract = temp_lowpass_filter(signal_data, fs, 5, unfiltered, t)
-        return extract
+        filtered_signal, extract = temp_lowpass_filter(signal_data, fs, 5, unfiltered, t)
+        return filtered_signal, extract
     #Motion
     elif choice == "Motion":
         print("Applying Motion Median Filter")
-        extract = imu_lowpass_filter(signal_data, fs, 4, unfiltered, t)
-        return extract
+        filtered_signal, extract = imu_lowpass_filter(signal_data, fs, 4, unfiltered, t)
+        return filtered_signal, extract
     #Respiration
     elif choice == "Respiration" :
         print("Applying Respiration Filter")
-        extract = respiration_lowpass_filter(signal_data, fs, 4, unfiltered, t)
-        return extract
-           
+        filtered_signal, extract = respiration_lowpass_filter(signal_data, fs, 4, unfiltered, t)
+        return filtered_signal, extract
+
 #Applying the different filters for each type of signal
 def ecg_filter(fs, signal_data, t, unfiltered) :
     
@@ -58,7 +58,7 @@ def ecg_filter(fs, signal_data, t, unfiltered) :
     
     analysis.plot_fft("ECG", bp_filtered_ecg, fs, unfiltered)
     
-    return extract
+    return bp_filtered_ecg,extract
     
 #****************************************************Temperature**********************************************
 def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
@@ -100,7 +100,7 @@ def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
     
     analysis.plot_fft("Temperature", lp_filtered, fs, unfiltered)
     
-    return extract
+    return lp_filtered,extract
 
 #****************************************************Resoiration**********************************************
 def respiration_lowpass_filter(signal_data, fs, order, unfiltered, t):
@@ -137,7 +137,7 @@ def respiration_lowpass_filter(signal_data, fs, order, unfiltered, t):
     
     extract = analysis.extract_respiration_features(lp_filtered, fs)
     
-    return extract
+    return lp_filtered, extract
 
 #****************************************************IMU**********************************************
 def imu_lowpass_filter(signal_data, fs, order, unfiltered, t):
@@ -176,6 +176,6 @@ def imu_lowpass_filter(signal_data, fs, order, unfiltered, t):
     
     extract = analysis.extract_motion_features(lp_filtered)
     
-    return extract
+    return lp_filtered,extract
     
     

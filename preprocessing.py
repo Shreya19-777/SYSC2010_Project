@@ -8,7 +8,7 @@ import filters
 
 def preprocess (filename, choice, x, y) :
     signal_data, time = data_loader.data_load(filename, choice, x, y)
-    
+    raw_data = (signal_data, time)
     #------------------------------------PREPROCESSING--------------------------------
     cleaned_data = handle_missing_data(signal_data)
     if (choice != "Temperature") :
@@ -24,7 +24,7 @@ def preprocess (filename, choice, x, y) :
     #Applying correct filter for the given data type
     extract = filters.apply_filter(choice, cleaned_data, time, fs, signal_data)
     print("4- preprocessing dataextracted successfully")  
-    return extract
+    return raw_data, extract
                 
             
 def handle_missing_data(signal):

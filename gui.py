@@ -54,6 +54,9 @@ class GUI(ctk.CTk):
             text_color=("gray10", "#080808"))
         self.btn_load.pack(pady=30)
 
+        self.show_raw_switch = ctk.CTkSwitch(self.sidebar, text="Show Raw Signal Overlay")
+        self.show_raw_switch.pack(pady=10) 
+
             #-------------------------------------KEY FEATURES---------------------------------------------
         
         self.stats_frame = ctk.CTkFrame(self.sidebar, fg_color="transparent")
@@ -73,6 +76,7 @@ class GUI(ctk.CTk):
         self.figure, (self.ax1, self.ax2) = plt.subplots(2, 1, figsize=(6, 8))
         self.figure.patch.set_facecolor("#686767F8") 
         self.canvas = FigureCanvasTkAgg(self.figure, master=self.graph_frame)
+              
                 #toolbar for zooming and panning
         self.toolbar = NavigationToolbar2Tk(self.canvas, self.graph_frame)
         self.toolbar.update()
@@ -80,8 +84,6 @@ class GUI(ctk.CTk):
         
         self.canvas.get_tk_widget().pack(side="bottom", fill="both", expand=True)
         
-
-       
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def on_closing(self):
@@ -107,39 +109,44 @@ class GUI(ctk.CTk):
         y = self.entry_y.get().strip()
         
         # Get raw data 
-        raw_data = data_loader.data_load(filename, choice, x, y)
+        #raw_data = data_loader.data_load(filename, choice, x, y)
+        
+
+        # get filtered data and extracted features
+        extracts = preprocessing.preprocess(filename, choice, x, y)
+        raw_data = extracts[0]  # Unpack raw data
         if raw_data is None:
             print("data_load returned None")
             return
         raw_signal, raw_time = raw_data
 
-        # get filtered data and extracted features
-        extracts = preprocessing.preprocess(filename, choice, x, y)
-        
-            # 2. Update the TIME DOMAIN Plot (ax1)
+        cleaned_signal = extracts[1]  # Unpack cleaned signal
+        if cleaned_signal is None:
+            print("preprocess returned None")
+            return
+        clean_signal, cleaned_time = cleaned_signal
+
+            # Update the time domain Plot (ax1)
         self.ax1.clear()
-        self.ax1.plot(raw_time, raw_signal, color='red', alpha=0.5, label='Unfiltered') # Light gray background
+        # Plot Comparison
+        if self.show_raw_switch.get() == 1:
+            self.ax1.plot(raw_time, raw_signal, color='gray', alpha=0.5, label='Raw')
+        
+        self.ax1.plot(cleaned_time, clean_signal, color='blue', label='Filtered')
+        self.ax1.set_title(f"Raw VS Filtered {choice} Signal")
         self.ax1.tick_params(axis='x', colors='white')
         self.ax1.tick_params(axis='y', colors='white')
 
-        # 2. Add Axis Labels (so you know what the numbers mean)
+        #  Axis Labels 
         self.ax1.set_xlabel("Time (s)", color='Black')
         self.ax1.set_ylabel("Amplitude (mV)", color='Black')
 
-        # 3. Important: If they are still cut off, use tight_layout
         self.figure.tight_layout()
-       # self.ax1.plot(time, filtered, color='pink', label='Filtered')        # Bright pink foreground
-        self.ax1.set_title("Raw VS Filtered Comparison")
-        self.ax1.legend() # This adds the 'U
+        self.ax1.legend() 
 
-       # if signal, time is None:  # ← ADD THIS
-           # print("preprocess returned None")
-           # return
-        #Clearing the previous labels
-        # Add this at the end of handle_selection
         self.figure.tight_layout()
-        self.canvas.draw_idle()  # This is faster than draw()
-        self.update_idletasks()  # This forces the toolbar and buttons to refresh
+        self.canvas.draw_idle()  #
+        self.update_idletasks()  
         self.clear_stats()
         
         for key, value in extracts.items():
@@ -149,8 +156,7 @@ class GUI(ctk.CTk):
                     font=ctk.CTkFont(size=12)
                 )
                 new_lbl.pack(pady=10, padx=20, anchor="w")
-                
-                # Save it so we can clear it next time
+                # Store the label reference so we can clear them later
                 self.dynamic_labels.append(new_lbl)
             
     def clear_stats(self):
