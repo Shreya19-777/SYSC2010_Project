@@ -113,6 +113,10 @@ class GUI(ctk.CTk):
         # Get raw data 
         #raw_data = data_loader.data_load(filename, choice, x, y)
         
+        #Clearing the plots 
+        self.ax1.clear()
+        self.ax2.clear()
+        
         # get filtered data and extracted features
         pck= preprocessing.preprocess(filename, choice, x, y)
         if pck is None:

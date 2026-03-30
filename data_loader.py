@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from tkinter import messagebox
 
-def data_load(filename, choice, x, y):
+def data_load(filename, x, y):
     try:
         df = pd.read_csv(filename)
 
