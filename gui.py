@@ -22,22 +22,22 @@ class GUI(ctk.CTk):
 
         #Getting CSV file name
         self.label_title = ctk.CTkLabel(self.sidebar, text="CSV File Name", font=ctk.CTkFont(weight="bold"))
-        self.label_title.pack(pady = (10, 5))
+        self.label_title.pack(pady = (10, 3))
         self.entry_file = ctk.CTkEntry(self.sidebar, width=250)
-        self.entry_file.pack(pady=5)
+        self.entry_file.pack(pady=3)
         
         self.btn_browse = ctk.CTkButton(self.sidebar, text="Browse File", command=self.browse_file)
-        self.btn_browse.pack(pady=5)
+        self.btn_browse.pack(pady=3)
 
         #Getting the x axis column name (time)
-        ctk.CTkLabel(self.sidebar, text="X-axis Column (Time): ").pack(pady=(10, 0))
+        ctk.CTkLabel(self.sidebar, text="X-axis Column (Time): ").pack(pady=(5, 0))
         self.entry_x = ctk.CTkEntry(self.sidebar, width=250)
-        self.entry_x.pack(pady=5)
+        self.entry_x.pack(pady=3)
 
         #Getting y axis column name (signal)
         ctk.CTkLabel(self.sidebar, text="Y-axis Column (Signal): ").pack(pady=(10, 0))
         self.entry_y = ctk.CTkEntry(self.sidebar, width=250)
-        self.entry_y.pack(pady=5)
+        self.entry_y.pack(pady=3)
 
         #Dropdown list (choosing data type)
         self.label_type = ctk.CTkLabel(self.sidebar, text="Select Data Type:")
@@ -53,11 +53,14 @@ class GUI(ctk.CTk):
             border_width=2,
             text_color=("gray10", "#080808"))
         self.btn_load.pack(pady=30)
-
+#------------switch for showing raw signal overlay on the time domain plot----------------------
         self.show_raw_switch = ctk.CTkSwitch(self.sidebar, text="Show Raw Signal Overlay")
         self.show_raw_switch.pack(pady=10) 
-
-            #-------------------------------------KEY FEATURES---------------------------------------------
+       
+#----------------------- switch for showing fft----------------------
+        self.show_fft_switch = ctk.CTkSwitch(self.sidebar, text="Show FFT")
+        self.show_fft_switch.pack(pady=10) 
+#-------------------------------------KEY FEATURES---------------------------------------------
         
         self.stats_frame = ctk.CTkFrame(self.sidebar, fg_color="transparent")
         self.stats_frame.pack(pady=10, fill="x") 
@@ -67,11 +70,11 @@ class GUI(ctk.CTk):
         self.dynamic_labels = []
         
 
-    #------------------------------------Graph frame (for plotting the data)-----------------------------------------------
+#------------------------------------Graph frame (for plotting the data)-----------------------------------------------
         self.graph_frame = ctk.CTkFrame(self)
         self.graph_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
 
-    #------------------------------------Matplotlib-----------------------------------------------
+ #------------------------------------Matplotlib-----------------------------------------------
        
         self.figure, (self.ax1, self.ax2) = plt.subplots(2, 1, figsize=(6, 8))
         self.figure.patch.set_facecolor("#686767F8") 
@@ -132,14 +135,17 @@ class GUI(ctk.CTk):
         self.ax1.set_ylabel("Amplitude (mV)", color='Black')
         self.ax1.legend() 
 
-        self.ax2.clear()
-        self.ax2.plot(pck['fft_freqs'], pck['raw_fft_mag'], color='gray', alpha=0.3, label='Raw FFT')
-        self.ax2.plot(pck['fft_freqs'], pck['fft_mag'], color='orange', label='Clean FFT')
-        self.ax2.set_title("FFT Spectrum Comparison")
-        self.ax2.tick_params(colors='white')
-        self.ax2.set_xlabel("Frequency (Hz)", color ='Black')
-        self.ax2.set_ylabel("Magnitude", color='Black')
-        self.ax2.legend()
+        if self.show_fft_switch.get() == 1:
+            self.ax2.clear()
+            self.ax2.plot(pck['fft_freqs'], pck['raw_fft_mag'], color='gray', alpha=0.3, label='Raw FFT')
+            self.ax2.plot(pck['fft_freqs'], pck['fft_mag'], color='orange', label='Clean FFT')
+            self.ax2.set_title("FFT Spectrum Comparison")
+            self.ax2.tick_params(colors='white')
+            self.ax2.set_xlabel("Frequency (Hz)", color ='Black')
+            self.ax2.set_ylabel("Magnitude", color='Black')
+            self.ax2.legend()
+        else:
+            self.ax2.clear()
 
         self.figure.tight_layout()
         self.canvas.draw_idle()  #
