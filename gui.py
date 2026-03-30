@@ -66,7 +66,6 @@ class GUI(ctk.CTk):
         self.stats_title.pack(pady=5)
         self.dynamic_labels = []
         
-
     #------------------------------------Graph frame (for plotting the data)-----------------------------------------------
         self.graph_frame = ctk.CTkFrame(self)
         self.graph_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
@@ -110,7 +109,6 @@ class GUI(ctk.CTk):
         # Get raw data 
         #raw_data = data_loader.data_load(filename, choice, x, y)
         
-
         # get filtered data and extracted features
         pck= preprocessing.preprocess(filename, choice, x, y)
         if pck is None:
@@ -150,11 +148,11 @@ class GUI(ctk.CTk):
         
         for key, value in pck.items():
                 if key in ["raw_signal", "clean_signal", "time", "fft_freqs", "fft_mag", "raw_fft_mag"]:
-                    continue  # Skip these keys as they are not stats
+                    continue  # Skip
 
                 if isinstance(value, dict):
                     for sub_key, sub_value in value.items():
-                        sub_value = round(sub_value, 2)  # Round floats to 2 decimal places for cleaner display
+                        sub_value = round(sub_value, 2)
                         new_lbl = ctk.CTkLabel(
                             self.stats_frame, 
                             text=f"{sub_key}: {sub_value}", 
