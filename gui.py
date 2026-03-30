@@ -13,12 +13,12 @@ class GUI(ctk.CTk):
         super().__init__()
 
         self.title("SYSC 2010 Final Project")
-        self.geometry("1920x1080")
+        self.geometry("1020x900")
 
 #-------------------------------------SIDEBAR---------------------------------------------(for user inputs and ststs)----------------------
         self.sidebar = ctk.CTkFrame(self, width=300)
         self.sidebar.pack(side="left", fill="y", padx=10, pady=10)
-        self.sidebar.pack_propagate(False)
+        self.sidebar.pack_propagate(True)
 
         #Getting CSV file name
         self.label_title = ctk.CTkLabel(self.sidebar, text="CSV File Name", font=ctk.CTkFont(weight="bold"))
