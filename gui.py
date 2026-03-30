@@ -16,7 +16,7 @@ class GUI(ctk.CTk):
         self.geometry("1020x900")
 
 #-------------------------------------SIDEBAR---------------------------------------------(for user inputs and ststs)----------------------
-        self.sidebar = ctk.CTkFrame(self, width=300)
+        self.sidebar = ctk.CTkScrollableFrame(self, width=300)
         self.sidebar.pack(side="left", fill="y", padx=10, pady=10)
         self.sidebar.pack_propagate(True)
 
