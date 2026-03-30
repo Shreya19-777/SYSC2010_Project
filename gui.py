@@ -13,7 +13,7 @@ class GUI(ctk.CTk):
         super().__init__()
 
         self.title("SYSC 2010 Final Project")
-        self.geometry("1200x800")
+        self.geometry("1920x1080")
 
 #-------------------------------------SIDEBAR---------------------------------------------(for user inputs and ststs)----------------------
         self.sidebar = ctk.CTkFrame(self, width=300)
@@ -63,7 +63,7 @@ class GUI(ctk.CTk):
 #-------------------------------------KEY FEATURES---------------------------------------------
         
         self.stats_frame = ctk.CTkFrame(self.sidebar, fg_color="transparent")
-        self.stats_frame.pack(pady=10, fill="x") 
+        self.stats_frame.pack(pady=5, fill="x") 
         
         self.stats_title = ctk.CTkLabel(self.stats_frame, text="Key Features", font=ctk.CTkFont(weight="bold"))
         self.stats_title.pack(pady=5)
@@ -165,7 +165,7 @@ class GUI(ctk.CTk):
                             text=f"{sub_key}: {sub_value}", 
                             font=ctk.CTkFont(size=12)
                         )
-                        new_lbl.pack(pady=10, padx=20, anchor="w")
+                        new_lbl.pack(pady=2, padx=20, anchor="w")
                         self.dynamic_labels.append(new_lbl)
             
             
