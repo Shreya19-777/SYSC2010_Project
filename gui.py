@@ -3,10 +3,10 @@ from tkinter import filedialog
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+import numpy as np
 
 #Importing files
 import preprocessing
-import data_loader
 
 class GUI(ctk.CTk):
     def __init__(self):
@@ -140,7 +140,7 @@ class GUI(ctk.CTk):
         self.ax2.legend()
 
         self.figure.tight_layout()
-        self.canvas.draw_idle()  #
+        self.canvas.draw_idle()
         self.update_idletasks()  
        
        # -----------------------Update the stats in the sidebar-----------------------
@@ -152,7 +152,7 @@ class GUI(ctk.CTk):
 
                 if isinstance(value, dict):
                     for sub_key, sub_value in value.items():
-                        sub_value = round(sub_value, 2)
+                        sub_value = np.round(sub_value, 2)
                         new_lbl = ctk.CTkLabel(
                             self.stats_frame, 
                             text=f"{sub_key}: {sub_value}", 
