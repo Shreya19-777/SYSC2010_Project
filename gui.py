@@ -3,10 +3,10 @@ from tkinter import filedialog
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+import numpy as np
 
 #Importing files
 import preprocessing
-import data_loader
 
 class GUI(ctk.CTk):
     def __init__(self):
@@ -113,7 +113,6 @@ class GUI(ctk.CTk):
         # Get raw data 
         #raw_data = data_loader.data_load(filename, choice, x, y)
         
-
         # get filtered data and extracted features
         pck= preprocessing.preprocess(filename, choice, x, y)
         if pck is None:
@@ -148,7 +147,7 @@ class GUI(ctk.CTk):
             self.ax2.clear()
 
         self.figure.tight_layout()
-        self.canvas.draw_idle()  #
+        self.canvas.draw_idle()
         self.update_idletasks()  
        
        # -----------------------Update the stats in the sidebar-----------------------
@@ -156,11 +155,11 @@ class GUI(ctk.CTk):
         
         for key, value in pck.items():
                 if key in ["raw_signal", "clean_signal", "time", "fft_freqs", "fft_mag", "raw_fft_mag"]:
-                    continue  # Skip these keys as they are not stats
+                    continue  # Skip
 
                 if isinstance(value, dict):
                     for sub_key, sub_value in value.items():
-                        sub_value = round(sub_value, 2)  # Round floats to 2 decimal places for cleaner display
+                        sub_value = np.round(sub_value, 2)
                         new_lbl = ctk.CTkLabel(
                             self.stats_frame, 
                             text=f"{sub_key}: {sub_value}", 
