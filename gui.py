@@ -28,23 +28,34 @@ class GUI(ctk.CTk):
         
         self.btn_browse = ctk.CTkButton(self.sidebar, text="Browse File", command=self.browse_file)
         self.btn_browse.pack(pady=3)
-
-        #Getting the x axis column name (time)
-        ctk.CTkLabel(self.sidebar, text="X-axis Column (Time): ").pack(pady=(5, 0))
-        self.entry_x = ctk.CTkEntry(self.sidebar, width=250)
-        self.entry_x.pack(pady=3)
-
-        #Getting y axis column name (signal)
-        ctk.CTkLabel(self.sidebar, text="Y-axis Column (Signal): ").pack(pady=(10, 0))
-        self.entry_y = ctk.CTkEntry(self.sidebar, width=250)
-        self.entry_y.pack(pady=3)
-
         #Dropdown list (choosing data type)
         self.label_type = ctk.CTkLabel(self.sidebar, text="Select Data Type:")
         self.label_type.pack(pady=(15, 0))
-        self.dropdown = ctk.CTkComboBox(self.sidebar, values=["ECG", "Temperature", "Respiration", "Motion"], width=200)
-        self.dropdown.set("ECG")
+        self.dropdown = ctk.CTkComboBox(self.sidebar, values=["ECG", "Temperature", "Respiration", "Motion"], width=200, command=self.update_input_fields)
+        self.dropdown.set("Motion")
         self.dropdown.pack(pady=5)
+        #self.update_input_fields("ECG") # Set initial state of input fields based on default dropdown selection
+ 
+
+        #Getting the time axis column name (time)
+        ctk.CTkLabel(self.sidebar, text="Column (Time): ").pack(pady=(5, 0))
+        self.entry_x = ctk.CTkEntry(self.sidebar, width=250)
+        self.entry_x.pack(pady=3)
+
+        #Getting signal 1 column name (signal)
+        ctk.CTkLabel(self.sidebar, text="Column (Signal): ").pack(pady=(10, 0))
+        self.entry_y = ctk.CTkEntry(self.sidebar, width=250)
+        self.entry_y.pack(pady=3)
+
+        #Getting z axis column name (signal)
+        ctk.CTkLabel(self.sidebar, text="Column (Signal 2): ").pack(pady=(10, 0))
+        self.entry_z = ctk.CTkEntry(self.sidebar, width=250)
+        self.entry_z.pack(pady=3)
+        #Getting extra column name (signal)        #Getting z axis column name (signal)
+        ctk.CTkLabel(self.sidebar, text="Column (Signal 3): ").pack(pady=(10, 0))
+        self.entry_extra = ctk.CTkEntry(self.sidebar, width=250)
+        self.entry_extra.pack(pady=3)
+
 
         #Button
         self.btn_load = ctk.CTkButton(self.sidebar, text="Load & Filter Data", 
@@ -104,17 +115,27 @@ class GUI(ctk.CTk):
             
     def handle_selection(self):
         choice = self.dropdown.get()
+        
 
         #Reading csv filename and columns
         filename = self.entry_file.get().strip()
-        x = self.entry_x.get().strip()
-        y = self.entry_y.get().strip()
-        
+        time_col = self.entry_x.get().strip()
+       # if choice == "Motion":
+        # For Motion, we need X, Y, and Z specifically
+        x_col = self.entry_y.get().strip() 
+        y_col = self.entry_z.get().strip()
+        z_col = self.entry_extra.get().strip() 
+            # Pass all 4 columns to your preprocessor
+        pck = preprocessing.preprocess(filename, choice, time_col, x_col, y_col, z_col)
+       # else:
+            #x_col = self.entry_y.get().strip()
+            
+           # pck = preprocessing.preprocess(filename, choice, time_col, x_col)
         # Get raw data 
         #raw_data = data_loader.data_load(filename, choice, x, y)
         
         # get filtered data and extracted features
-        pck= preprocessing.preprocess(filename, choice, x, y)
+        
         if pck is None:
             print("preprocess returned None")
             return
@@ -168,7 +189,20 @@ class GUI(ctk.CTk):
                         new_lbl.pack(pady=2, padx=20, anchor="w")
                         self.dynamic_labels.append(new_lbl)
             
+    def update_input_fields(self, choice):
+        if choice == "Motion":
+            # Enable everything for Motion
+            self.entry_z.configure(state="normal", fg_color="white")
+            self.entry_extra.configure(state="normal", fg_color="white")
+            # Optional: update labels to say X, Y, Z
+        else:
+            # Disable for ECG, Temp, Respiration
+            self.entry_z.delete(0, 'end') # Clear text so it's not confusing
+            self.entry_z.configure(state="disabled", fg_color="gray")
             
+            self.entry_extra.delete(0, 'end')
+            self.entry_extra.configure(state="disabled", fg_color="gray")        
+    
     def clear_stats(self):
         for label in self.dynamic_labels:
             label.destroy()

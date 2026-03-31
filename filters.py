@@ -36,24 +36,6 @@ def ecg_filter(fs, signal_data, t, unfiltered) :
 
     sos = signal.butter(10, [minimum, high], btype='band', fs=fs, output='sos')
     bp_filtered_ecg = signal.sosfiltfilt(sos, signal_data)
-
-#plt.figure(figsize=(12,8))
-   # plt.title("Band Pass Filtered Signal")
-   # plt.xlabel("Time (s)")
-   # plt.ylabel("Amplitude")
-   # plt.tight_layout()
-    #plt.plot(t, bp_filtered_ecg, color='purple')
-    #plt.show()
-    
-    #Comparison between filtered and unfiltered
-   # plt.figure(figsize=(12,8))
-   # plt.title("Comparison of Filtered and Unfiltered ECG")
-   # plt.xlabel("Time (s)")
-   # plt.ylabel("Amplitude")
-   # plt.tight_layout()
-   # plt.plot(t, unfiltered, color='pink')
-    #plt.plot(t, bp_filtered_ecg, color='purple')
-    #plt.show()
     
     stats = analysis.extract_ecg_features(bp_filtered_ecg, fs)
     
@@ -69,10 +51,8 @@ def ecg_filter(fs, signal_data, t, unfiltered) :
         "fft_mag": fft_mag,
         "raw_fft_mag": raw_fft_mag # To compare FFTs on ax2
     }
-    
     return package
 
-    
 #****************************************************Temperature**********************************************
 def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
     #Lowpass filter to remove baseline drift while maintaining the mean
@@ -90,24 +70,6 @@ def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
     normal_cutoff = 0.2
     b, a = signal.butter(order, normal_cutoff, btype='low', analog=False)
     lp_filtered = signal.filtfilt(b, a, filtered_signal)
-
-   # plt.figure(figsize=(12,8))
-   # plt.title("Filtered Temperature Signal")
-   # plt.xlabel("Time (s)")
-   # plt.ylabel("Amplitude")
-  #  plt.tight_layout()
-   # plt.plot(t, lp_filtered, color='blue')
-   # plt.show()
-    
-    #Comparison between filtered and unfiltered
-   # plt.figure(figsize=(12,8))
-    #plt.title("Comparison of Filtered and Unfiltered Temperature")
-   # plt.xlabel("Time (s)")
-    #plt.ylabel("Amplitude")
-    #plt.tight_layout()
-    #plt.plot(t, unfiltered, color='pink')
-    #plt.plot(t, lp_filtered, color='blue')
-    #plt.show()
     
     stats = analysis.extract_temp_features(lp_filtered, fs)
     
@@ -136,24 +98,6 @@ def respiration_lowpass_filter(signal_data, fs, order, unfiltered, t):
     normal_cutoff = cutoff / nyquist
     b, a = signal.butter(order, normal_cutoff, btype='low', analog=False)
     lp_filtered = signal.filtfilt(b, a, signal_data)
-   
-    #plt.figure(figsize=(12,8))
-    #plt.title("Filtered Respiration Signal")
-    #plt.xlabel("Time (s)")
-    #plt.ylabel("Amplitude")
-    #plt.tight_layout()
-    #plt.plot(t, lp_filtered, color='blue')
-    #plt.show()
-    
-    #Comparison between filtered and unfiltered
-    #plt.figure(figsize=(12,8))
-    #plt.title("Comparison of Filtered and Unfiltered Respiration")
-    #plt.xlabel("Time (s)")
-    #plt.ylabel("Amplitude")
-    #plt.tight_layout()
-    #plt.plot(t, unfiltered, color='pink')
-    #plt.plot(t, lp_filtered, color='blue')
-    #plt.show()
     
     fft_freq, fft_mag = analysis.plot_fft("Respiration", lp_filtered, fs, unfiltered)
     raw_fft_freq, raw_fft_mag = analysis.plot_fft_unfiltered("Respiration", lp_filtered, fs, unfiltered)
@@ -187,24 +131,6 @@ def imu_lowpass_filter(signal_data, fs, order, unfiltered, t):
     b, a = signal.butter(order, normal_cutoff, btype='low', analog=False)
     lp_filtered = signal.filtfilt(b, a, signal_data)
 
-    #plt.figure(figsize=(12,8))
-    #plt.title("Filtered IMU Signal")
-    #plt.xlabel("Time (s)")
-    #plt.ylabel("Amplitude")
-    #plt.tight_layout()
-    #plt.plot(t, lp_filtered, color='blue')
-    #plt.show()
-    
-    #Comparison between filtered and unfiltered
-    #plt.figure(figsize=(12,8))
-    #plt.title("Comparison of Filtered and Unfiltered IMU")
-    #plt.xlabel("Time (s)")
-    #plt.ylabel("Amplitude")
-    #plt.tight_layout()
-    #plt.plot(t, unfiltered, color='pink')
-    #plt.plot(t, lp_filtered, color='blue')
-    #plt.show()
-    
     fft_freq, fft_mag = analysis.plot_fft("IMU", lp_filtered, fs, unfiltered)
     raw_fft_freq, raw_fft_mag = analysis.plot_fft_unfiltered("IMU", lp_filtered, fs, unfiltered)
     

@@ -6,8 +6,11 @@ import matplotlib.pyplot as plt
 import data_loader
 import filters
 
-def preprocess (filename, choice, x, y) :
-    signal_data, time = data_loader.data_load(filename, choice, x, y)
+def preprocess (filename, choice, time_col, x_col, y_col, z_col):
+    if choice == "Motion":
+        signal_data, time = data_loader.motion_data_load(filename, time_col, x_col, y_col, z_col)
+    else:
+        signal_data, time = data_loader.data_load(filename, choice, time_col, x_col)
     raw_data = (signal_data, time)
     #------------------------------------PREPROCESSING--------------------------------
     cleaned_data = handle_missing_data(signal_data)
@@ -25,7 +28,9 @@ def preprocess (filename, choice, x, y) :
     package = filters.apply_filter(choice, cleaned_data, time, fs, signal_data)
     print("4- preprocessing dataextracted successfully")  
     return package 
-                
+
+
+  
             
 def handle_missing_data(signal):
 
