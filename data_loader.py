@@ -8,7 +8,7 @@ from pandas.errors import EmptyDataError
 
 import preprocessing
 
-def data_load(filename, choice, x, y):
+def data_load(filename, choice, x, y, unit):
         
     try:
         df = pd.read_csv(filename)
@@ -31,6 +31,9 @@ def data_load(filename, choice, x, y):
         
         time = np.array(df[x])
         signal_data = np.array(df[y])
+        
+        if (unit == "Milliseconds") :
+            time = time/1000.0
         
         #Only call preprocess if there are no errors with the csv
         pck = preprocessing.preprocess(choice, signal_data, time)

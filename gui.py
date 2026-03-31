@@ -6,7 +6,6 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 import numpy as np
 
 #Importing files
-import preprocessing
 import data_loader
 
 class GUI(ctk.CTk):
@@ -43,9 +42,16 @@ class GUI(ctk.CTk):
         #Dropdown list (choosing data type)
         self.label_type = ctk.CTkLabel(self.sidebar, text="Select Data Type:")
         self.label_type.pack(pady=(15, 0))
-        self.dropdown = ctk.CTkComboBox(self.sidebar, values=["ECG", "Temperature", "Respiration", "Motion"], width=200)
-        self.dropdown.set("ECG")
-        self.dropdown.pack(pady=5)
+        self.dropdown1 = ctk.CTkComboBox(self.sidebar, values=["ECG", "Temperature", "Respiration", "Motion"], width=200)
+        self.dropdown1.set("ECG")
+        self.dropdown1.pack(pady=5)
+        
+        #Dropdown list (choosing unit)
+        self.label_type = ctk.CTkLabel(self.sidebar, text="Select Unit for Time:")
+        self.label_type.pack(pady=(15, 0))
+        self.dropdown2 = ctk.CTkComboBox(self.sidebar, values=["Seconds", "Milliseconds"], width=200)
+        self.dropdown2.set("Seconds")
+        self.dropdown2.pack(pady=5)
 
         #Button
         self.btn_load = ctk.CTkButton(self.sidebar, text="Load & Filter Data", 
@@ -105,7 +111,8 @@ class GUI(ctk.CTk):
             self.entry_file.insert(0, file_path)
             
     def handle_selection(self):
-        choice = self.dropdown.get()
+        choice = self.dropdown1.get()
+        unit = self.dropdown2.get()
 
         #Reading csv filename and columns
         filename = self.entry_file.get().strip()
@@ -117,7 +124,7 @@ class GUI(ctk.CTk):
         self.ax2.clear()
         
         # get filtered data and extracted features
-        pck = data_loader.data_load(filename, choice, x, y)
+        pck = data_loader.data_load(filename, choice, x, y, unit)
         #pck= preprocessing.preprocess(filename, choice, x, y)
         if pck is None:
             return
