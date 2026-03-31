@@ -3,18 +3,17 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 #file imports
-import data_loader
 import filters
 
-def preprocess (filename, choice, x, y) :
-    signal_data, time = data_loader.data_load(filename, x, y)
-    raw_data = (signal_data, time)
-    
+def preprocess (choice, signal_data, time) :
+
     #------------------------------------PREPROCESSING--------------------------------
     cleaned_data = handle_missing_data(signal_data)
+    
     if (choice != "Temperature") :
         cleaned_data = remove_drift(cleaned_data)
         cleaned_data = normalize(cleaned_data)
+        
     print("3- preprocessing data cleaned successfully")  
         
     #Getting the sampling frequency
@@ -24,7 +23,7 @@ def preprocess (filename, choice, x, y) :
  
     #Applying correct filter for the given data type
     package = filters.apply_filter(choice, cleaned_data, time, fs, signal_data)
-    print("4- preprocessing dataextracted successfully")  
+    print("4- preprocessing data extracted successfully")  
     return package 
                 
             

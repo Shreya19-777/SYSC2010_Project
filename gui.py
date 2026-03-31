@@ -7,15 +7,16 @@ import numpy as np
 
 #Importing files
 import preprocessing
+import data_loader
 
 class GUI(ctk.CTk):
     def __init__(self):
         super().__init__()
 
         self.title("SYSC 2010 Final Project")
-        self.geometry("1020x900")
+        self.geometry("1400x900")
 
-#-------------------------------------SIDEBAR---------------------------------------------(for user inputs and ststs)----------------------
+#-------------------------------------SIDEBAR-------------------------------------------------------------------
         self.sidebar = ctk.CTkScrollableFrame(self, width=300)
         self.sidebar.pack(side="left", fill="y", padx=10, pady=10)
         self.sidebar.pack_propagate(True)
@@ -53,6 +54,7 @@ class GUI(ctk.CTk):
             border_width=2,
             text_color=("gray10", "#080808"))
         self.btn_load.pack(pady=30)
+        
 #------------switch for showing raw signal overlay on the time domain plot----------------------
         self.show_raw_switch = ctk.CTkSwitch(self.sidebar, text="Show Raw Signal Overlay")
         self.show_raw_switch.pack(pady=10) 
@@ -61,7 +63,6 @@ class GUI(ctk.CTk):
         self.show_fft_switch = ctk.CTkSwitch(self.sidebar, text="Show FFT")
         self.show_fft_switch.pack(pady=10) 
 #-------------------------------------KEY FEATURES---------------------------------------------
-        
         self.stats_frame = ctk.CTkFrame(self.sidebar, fg_color="transparent")
         self.stats_frame.pack(pady=5, fill="x") 
         
@@ -90,11 +91,14 @@ class GUI(ctk.CTk):
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def on_closing(self):
-        self.withdraw() # Hide the window immediately
-        self.quit()     # Stop the main loop
-        self.destroy()  # Clean up resources
-  
-    #Fiunding CSV
+        self.after_cancel(self.handle_selection)
+        self.quit() 
+        try:
+            self.destroy()
+        except Exception:
+            pass
+        
+    #Finding CSV
     def browse_file(self):
         #Choosing csv files only
         file_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
@@ -110,20 +114,16 @@ class GUI(ctk.CTk):
         x = self.entry_x.get().strip()
         y = self.entry_y.get().strip()
         
-        # Get raw data 
-        #raw_data = data_loader.data_load(filename, choice, x, y)
-        
         #Clearing the plots 
         self.ax1.clear()
         self.ax2.clear()
         
         # get filtered data and extracted features
-        pck= preprocessing.preprocess(filename, choice, x, y)
+        pck = data_loader.data_load(filename, choice, x, y)
+        #pck= preprocessing.preprocess(filename, choice, x, y)
         if pck is None:
-            print("preprocess returned None")
             return
 
-            # Update the time domain Plot (ax1)
         self.ax1.clear()
         # Plot Comparison
         if self.show_raw_switch.get() == 1:

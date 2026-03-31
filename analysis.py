@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from scipy import signal
 from scipy.signal import find_peaks
 
-#*********************************************FFT**********************************************88
+#*********************************************FFT**********************************************
 def plot_fft(dtype, signal_data, sampling_rate, unfiltered):
 
     #
@@ -28,7 +28,8 @@ def plot_fft_unfiltered(dtype, signal_data, sampling_rate, unfiltered):
         
 
     return freq_axis_unfiltered, fft_unfiltered
-#***************************************Feature extraction****************************************8
+
+#***************************************Feature extraction****************************************
 
 def extract_ecg_features(filtered, fs) :
     
@@ -41,7 +42,7 @@ def extract_ecg_features(filtered, fs) :
         rr_intervals = np.diff(peaks) / 360
         heart_rate = 60 / np.mean(rr_intervals)
     else:
-        #In the case of an error set heaartrate to 0 to avoid NaN
+        #In the case of an error set heartrate to 0 to avoid NaN
         print("Error with heart rate calculation")
         heart_rate = 0
 
@@ -57,12 +58,19 @@ def extract_ecg_features(filtered, fs) :
     return features
 
 def extract_temp_features(filtered, fs) :
+    
+    time_axis = np.arange(len(filtered)) / fs
+    
+    slope, intercept = np.polyfit(time_axis, filtered, 1)
+    
     features = {
         "Mean": np.mean(filtered),
         "Std Dev": np.std(filtered),
         "RMS": np.sqrt(np.mean(filtered**2)), 
         "Peak Acceleration": np.max(np.abs(filtered)),   
-        "Peak-to-Peak": np.ptp(filtered)             
+        "Peak-to-Peak": np.ptp(filtered),
+        "Trend Slope": slope,
+        "Variance": np.var(filtered)             
     }
     return features
 
