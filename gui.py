@@ -34,7 +34,7 @@ class GUI(ctk.CTk):
         self.dropdown = ctk.CTkComboBox(self.sidebar, values=["ECG", "Temperature", "Respiration", "Motion"], width=200, command=self.update_input_fields)
         self.dropdown.set("Motion")
         self.dropdown.pack(pady=5)
-        #self.update_input_fields("ECG") # Set initial state of input fields based on default dropdown selection
+       
  
 
         #Getting the time axis column name (time)
@@ -120,21 +120,13 @@ class GUI(ctk.CTk):
         #Reading csv filename and columns
         filename = self.entry_file.get().strip()
         time_col = self.entry_x.get().strip()
-       # if choice == "Motion":
-        # For Motion, we need X, Y, and Z specifically
+       
         x_col = self.entry_y.get().strip() 
         y_col = self.entry_z.get().strip()
         z_col = self.entry_extra.get().strip() 
-            # Pass all 4 columns to your preprocessor
-        pck = preprocessing.preprocess(filename, choice, time_col, x_col, y_col, z_col)
-       # else:
-            #x_col = self.entry_y.get().strip()
             
-           # pck = preprocessing.preprocess(filename, choice, time_col, x_col)
-        # Get raw data 
-        #raw_data = data_loader.data_load(filename, choice, x, y)
-        
-        # get filtered data and extracted features
+        pck = preprocessing.preprocess(filename, choice, time_col, x_col, y_col, z_col)
+     
         
         if pck is None:
             print("preprocess returned None")
@@ -194,10 +186,9 @@ class GUI(ctk.CTk):
             # Enable everything for Motion
             self.entry_z.configure(state="normal", fg_color="white")
             self.entry_extra.configure(state="normal", fg_color="white")
-            # Optional: update labels to say X, Y, Z
         else:
             # Disable for ECG, Temp, Respiration
-            self.entry_z.delete(0, 'end') # Clear text so it's not confusing
+            self.entry_z.delete(0, 'end') # Clear text before disabling
             self.entry_z.configure(state="disabled", fg_color="gray")
             
             self.entry_extra.delete(0, 'end')

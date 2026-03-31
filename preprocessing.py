@@ -29,8 +29,6 @@ def preprocess (filename, choice, time_col, x_col, y_col, z_col):
     print("4- preprocessing dataextracted successfully")  
     return package 
 
-
-  
             
 def handle_missing_data(signal):
 

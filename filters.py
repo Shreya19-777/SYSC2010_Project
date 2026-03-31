@@ -46,7 +46,7 @@ def ecg_filter(fs, signal_data, t, unfiltered) :
         "raw_signal": unfiltered,
         "clean_signal": bp_filtered_ecg,
         "time": t,
-        "stats": stats,           # This is your dictionary of Mean, BPM, etc.
+        "stats": stats,
         "fft_freqs": fft_freq,
         "fft_mag": fft_mag,
         "raw_fft_mag": raw_fft_mag # To compare FFTs on ax2
@@ -75,6 +75,7 @@ def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
     
     fft_freq, fft_mag = analysis.plot_fft("Temperature", lp_filtered, fs, unfiltered)
     raw_fft_freq, raw_fft_mag = analysis.plot_fft_unfiltered("Temperature", lp_filtered, fs, unfiltered)
+    
     package= {
         "raw_signal": unfiltered,
         "clean_signal": lp_filtered,
@@ -86,7 +87,7 @@ def temp_lowpass_filter(signal_data, fs, order, unfiltered, t):
         }
     return package
 
-#****************************************************Resoiration**********************************************
+#****************************************************Respiration**********************************************
 def respiration_lowpass_filter(signal_data, fs, order, unfiltered, t):
    #IRR lowpass filter to isolate breathing cycles
     nyquist = 0.5 * fs
@@ -98,6 +99,7 @@ def respiration_lowpass_filter(signal_data, fs, order, unfiltered, t):
     normal_cutoff = cutoff / nyquist
     b, a = signal.butter(order, normal_cutoff, btype='low', analog=False)
     lp_filtered = signal.filtfilt(b, a, signal_data)
+
     
     fft_freq, fft_mag = analysis.plot_fft("Respiration", lp_filtered, fs, unfiltered)
     raw_fft_freq, raw_fft_mag = analysis.plot_fft_unfiltered("Respiration", lp_filtered, fs, unfiltered)
@@ -130,7 +132,7 @@ def imu_lowpass_filter(signal_data, fs, order, unfiltered, t):
     normal_cutoff = cutoff / nyquist
     b, a = signal.butter(order, normal_cutoff, btype='low', analog=False)
     lp_filtered = signal.filtfilt(b, a, signal_data)
-
+    
     fft_freq, fft_mag = analysis.plot_fft("IMU", lp_filtered, fs, unfiltered)
     raw_fft_freq, raw_fft_mag = analysis.plot_fft_unfiltered("IMU", lp_filtered, fs, unfiltered)
     
