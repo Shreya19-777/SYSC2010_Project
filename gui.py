@@ -6,7 +6,6 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 import numpy as np
 
 #Importing files
-import preprocessing
 import data_loader
 
 class GUI(ctk.CTk):
@@ -29,14 +28,6 @@ class GUI(ctk.CTk):
         
         self.btn_browse = ctk.CTkButton(self.sidebar, text="Browse File", command=self.browse_file)
         self.btn_browse.pack(pady=3)
-        #Dropdown list (choosing data type)
-        self.label_type = ctk.CTkLabel(self.sidebar, text="Select Data Type:")
-        self.label_type.pack(pady=(15, 0))
-        self.dropdown = ctk.CTkComboBox(self.sidebar, values=["ECG", "Temperature", "Respiration", "Motion"], width=200, command=self.update_input_fields)
-        self.dropdown.set("Motion")
-        self.dropdown.pack(pady=5)
-       
- 
 
         #Getting the time axis column name (time)
         ctk.CTkLabel(self.sidebar, text="Column (Time): ").pack(pady=(5, 0))
@@ -48,15 +39,6 @@ class GUI(ctk.CTk):
         self.entry_y = ctk.CTkEntry(self.sidebar, width=250)
         self.entry_y.pack(pady=3)
 
-        #Getting z axis column name (signal)
-        ctk.CTkLabel(self.sidebar, text="Column (Signal 2): ").pack(pady=(10, 0))
-        self.entry_z = ctk.CTkEntry(self.sidebar, width=250)
-        self.entry_z.pack(pady=3)
-        #Getting extra column name (signal)        #Getting z axis column name (signal)
-        ctk.CTkLabel(self.sidebar, text="Column (Signal 3): ").pack(pady=(10, 0))
-        self.entry_extra = ctk.CTkEntry(self.sidebar, width=250)
-        self.entry_extra.pack(pady=3)
-
         #Dropdown list (choosing data type)
         self.label_type = ctk.CTkLabel(self.sidebar, text="Select Data Type:")
         self.label_type.pack(pady=(15, 0))
@@ -64,19 +46,18 @@ class GUI(ctk.CTk):
         self.dropdown1.set("ECG")
         self.dropdown1.pack(pady=5)
         
-        #Dropdown list (choosing unit)
-        self.label_type = ctk.CTkLabel(self.sidebar, text="Select Unit for Time:")
+        '''
+        self.label_type = ctk.CTkLabel(self.sidebar, text="Select Unit:")
         self.label_type.pack(pady=(15, 0))
-        self.dropdown2 = ctk.CTkComboBox(self.sidebar, values=["Seconds", "Milliseconds"], width=200)
-        self.dropdown2.set("Seconds")
+        self.dropdown2 = ctk.CTkComboBox(self.sidebar, values=["s", "ms"], width=200)
+        self.dropdown2.set("ECG")
         self.dropdown2.pack(pady=5)
+        '''
 
         #Button
         self.btn_load = ctk.CTkButton(self.sidebar, text="Load & Filter Data", 
-            command=self.handle_selection,
-            fg_color="transparent", 
-            border_width=2,
-            text_color=("gray10", "#080808"))
+            command=self.handle_selection, 
+            border_width=2)
         self.btn_load.pack(pady=30)
 #------------switch for showing raw signal overlay on the time domain plot----------------------
         self.show_raw_switch = ctk.CTkSwitch(self.sidebar, text="Show Raw Signal Overlay")
@@ -128,32 +109,18 @@ class GUI(ctk.CTk):
             self.entry_file.insert(0, file_path)
             
     def handle_selection(self):
-        choice = self.dropdown.get()
+        filename = self.entry_file.get().strip()
+        x = self.entry_x.get().strip()
+        y = self.entry_y.get().strip() 
         
         choice = self.dropdown1.get()
-        unit = self.dropdown2.get()
-
-        #Reading csv filename and columns
-        filename = self.entry_file.get().strip()
-        time_col = self.entry_x.get().strip()
-       
-        x_col = self.entry_y.get().strip() 
-        y_col = self.entry_z.get().strip()
-        z_col = self.entry_extra.get().strip() 
-            
-        pck = preprocessing.preprocess(filename, choice, time_col, x_col, y_col, z_col)
-     
-        
-        x = self.entry_x.get().strip()
-        y = self.entry_y.get().strip()
         
         #Clearing the plots 
         self.ax1.clear()
         self.ax2.clear()
         
         # get filtered data and extracted features
-        pck = data_loader.data_load(filename, choice, x, y, unit)
-        #pck= preprocessing.preprocess(filename, choice, x, y)
+        pck = data_loader.data_load(filename, choice, x, y)
         if pck is None:
             print("preprocess returned None")
             return

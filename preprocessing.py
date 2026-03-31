@@ -3,15 +3,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 #file imports
-import data_loader
 import filters
 
-def preprocess (filename, choice, time_col, x_col, y_col, z_col):
-    if choice == "Motion":
-        signal_data, time = data_loader.motion_data_load(filename, time_col, x_col, y_col, z_col)
-    else:
-        signal_data, time = data_loader.data_load(filename, choice, time_col, x_col)
-    raw_data = (signal_data, time)
+def preprocess (choice, signal_data, time):
     #------------------------------------PREPROCESSING--------------------------------
     cleaned_data = handle_missing_data(signal_data)
     if (choice != "Temperature") :
