@@ -81,7 +81,7 @@ class GUI(ctk.CTk):
         self.figure.patch.set_facecolor("#686767F8") 
         self.canvas = FigureCanvasTkAgg(self.figure, master=self.graph_frame)
               
-                #toolbar for zooming and panning
+        #toolbar for zooming and panning
         self.toolbar = NavigationToolbar2Tk(self.canvas, self.graph_frame)
         self.toolbar.update()
         self.toolbar.pack(side="top", fill="x")
