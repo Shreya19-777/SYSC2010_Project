@@ -50,9 +50,7 @@ class GUI(ctk.CTk):
         #Button
         self.btn_load = ctk.CTkButton(self.sidebar, text="Load & Filter Data", 
             command=self.handle_selection,
-            fg_color="transparent", 
-            border_width=2,
-            text_color=("gray10", "#080808"))
+            border_width=2)
         self.btn_load.pack(pady=30)
         
 #------------switch for showing raw signal overlay on the time domain plot----------------------
