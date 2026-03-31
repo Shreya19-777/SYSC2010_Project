@@ -30,7 +30,6 @@ def data_load(filename, choice, x, y):
             return None, None
         
         time = np.array(df[x])
-            
         signal_data = np.array(df[y])
         
         #Only call preprocess if there are no errors with the csv
