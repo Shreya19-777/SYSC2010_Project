@@ -7,6 +7,10 @@ import filters
 
 def preprocess (choice, signal_data, time):
     #------------------------------------PREPROCESSING--------------------------------
+    if (choice == "ECG") :
+        #Converting from microvolts to millivolts
+        signal_data = signal_data/1000
+        
     cleaned_data = handle_missing_data(signal_data)
     if (choice != "Temperature") :
         cleaned_data = remove_drift(cleaned_data)
@@ -17,6 +21,7 @@ def preprocess (choice, signal_data, time):
     time_diff = np.diff(time)
     sampling_period = np.median(time_diff)
     fs = (1/sampling_period)
+    print(fs)
  
     #Applying correct filter for the given data type
     package = filters.apply_filter(choice, cleaned_data, time, fs, signal_data)
