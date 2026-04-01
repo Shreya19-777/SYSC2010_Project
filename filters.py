@@ -31,6 +31,8 @@ def apply_filter(choice, signal_data, t, fs, unfiltered) :
 def ecg_filter(fs, signal_data, t, unfiltered) :
     
     #Using FIR to lose less data about the QRS complex in ECG signal
+    unfiltered = unfiltered/1000
+    
     minimum = 0.5
     high = 40
 
