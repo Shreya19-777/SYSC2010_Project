@@ -18,15 +18,6 @@ def data_load(filename, choice, x, y):
             messagebox.showwarning("Empty CSV File", f"The file '{filename}' contains no data.")
             return None
         
-        time = df.iloc[:, 0].values
-        signal_data = df.iloc[:, 1].values
-        
-        # 3. Clean up NaNs (very common with trailing commas)
-        # This ensures 'preprocess' doesn't receive 'None' or 'NaN' values
-        mask = ~np.isnan(signal_data)
-        time = time[mask]
-        signal_data = signal_data[mask]
-        
         #Checking for invalid column names
         '''
         if x not in df.columns or y not in df.columns:
@@ -43,11 +34,8 @@ def data_load(filename, choice, x, y):
             messagebox.showwarning("No data to display, all entries empty")
             return None
         
-        '''
-        #Only call preprocess if there are no errors
         time = np.array(df[x])
         signal_data = np.array(df[y])
-        '''
         
         #Only call preprocess if there are no errors with the csv
         pck = preprocessing.preprocess(choice, signal_data, time)
