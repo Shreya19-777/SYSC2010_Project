@@ -7,7 +7,6 @@ from scipy.signal import find_peaks
 #*********************************************FFT**********************************************
 def plot_fft(dtype, signal_data, sampling_rate, unfiltered):
 
-    #
     N = len(signal_data)
     period = 1.0 / sampling_rate
     
